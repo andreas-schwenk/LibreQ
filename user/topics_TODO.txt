@@ -1,0 +1,16 @@
+Mathematics
+  Basics
+    Set Theory
+      Union, Intersection, Difference
+      Cartesian Product
+      Power Set
+    Numbers
+      Natural Numbers
+      Integers
+      Rational Numbers
+  Elementary Functions
+    Polynomials
+      Zeros
+    Rational Functions
+      Domain
+      Zeros

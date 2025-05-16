@@ -1,0 +1,18 @@
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Andreas Schwenk",
+  "url": "https://freibad-ampel.de",
+  "description": "FreibadAmpel - Eine Initiative zur Unterstützung der Bäder.",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Andreas Schwenk",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://freibad-ampel.de/assets/images/favicon/android-chrome-192x192.png",
+      "width": 192,
+      "height": 192
+    }
+  },
+  "mainEntity": {}
+}

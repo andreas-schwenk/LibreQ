@@ -1,0 +1,45 @@
+{
+  "nav": {
+    "home": "Home",
+    "questions": "Questions",
+    "editor": "Editor",
+    "moodle": "Moodle",
+    "help": "Help",
+    "legal": "Legal"
+  },
+  "filter": [
+    {
+      "name": "Bloom",
+      "table-idx": 0,
+      "values": [
+        "Remember",
+        "Understand",
+        "Apply",
+        "Analyze",
+        "Evaluate",
+        "Create"
+      ]
+    },
+    {
+      "name": "Maier -- Type of Knowledge",
+      "table-idx": 1,
+      "values": ["Facts", "Procedures", "Concepts", "Metacognition"]
+    },
+    {
+      "name": "Maier -- Cognitive Process",
+      "table-idx": 2,
+      "values": [
+        "Reproduction",
+        "Near Transfer",
+        "Far Transfer",
+        "Problem Solving"
+      ]
+    }
+  ],
+  "qa": [
+    {
+      "name": "Checked Format",
+      "table-idx": 0
+    }
+  ]
+}

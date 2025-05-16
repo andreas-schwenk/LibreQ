@@ -1,0 +1,18 @@
+{
+  "name": "libreq",
+  "version": "1.0.0",
+  "description": "A free and flexible toolkit for organizing, tagging, and sharing Moodle questions",
+  "author": "Andreas Schwenk",
+  "license": "GPL-3.0-or-later",
+  "repository": "https://github.com/andreas-schwenk/LibreQ",
+  "homepage": "TODO",
+  "type": "module",
+  "scripts": {
+    "run": "php -S localhost:8271",
+    "build": "node build.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.1",
+    "html-minifier-terser": "^7.2.0"
+  }
+}

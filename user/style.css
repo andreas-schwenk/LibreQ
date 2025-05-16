@@ -1,0 +1,4 @@
+/* Overwrite the main theme color here */
+:root {
+  --primary-color: rgb(4, 59, 17);
+}

@@ -7,7 +7,6 @@
 import { SCRIPTS_URL } from "./config.js";
 import {
   createDiv,
-  createH1,
   createHorizontalSpacer,
   createQuestionButton,
 } from "./dom.js";

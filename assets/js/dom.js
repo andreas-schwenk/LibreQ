@@ -87,16 +87,13 @@ export function createHorizontalSpacer(parent, pixels) {
 
 /**
  * @param {HTMLElement} parent
- * @param {string} position -- l,c,r,lr
  * @param {string} text
  * @param {function} action
  * @returns {HTMLElement}
  */
-export function createQuestionButton(parent, position, text, action) {
+export function createButton(parent, text, action) {
   let button = document.createElement("div");
-  button.classList.add("question-button");
-  if (position.includes("l")) button.classList.add("question-button-left");
-  if (position.includes("r")) button.classList.add("question-button-right");
+  button.classList.add("button");
   button.tabIndex = 0;
   if (text.startsWith("img:")) {
     let img = document.createElement("img");
@@ -113,6 +110,22 @@ export function createQuestionButton(parent, position, text, action) {
     if (e.key === "Enter") button.click();
   });
   parent.appendChild(button);
+  return button;
+}
+
+/**
+ * @param {HTMLElement} parent
+ * @param {string} position -- l,c,r,lr
+ * @param {string} text
+ * @param {function} action
+ * @returns {HTMLElement}
+ */
+export function createQuestionButton(parent, position, text, action) {
+  let button = createButton(parent, text, action);
+  button.classList.remove("button");
+  button.classList.add("question-button");
+  if (position.includes("l")) button.classList.add("question-button-left");
+  if (position.includes("r")) button.classList.add("question-button-right");
   return button;
 }
 
@@ -201,7 +214,7 @@ export class PasswordInput extends TextInput {
 }
 
 export class CheckboxInput {
-  input = /** @type {HTMLInputElement} */ (null);
+  input = /** @type {HTMLElement} */ (null);
   value = false;
 
   /**
@@ -210,19 +223,14 @@ export class CheckboxInput {
    * @param {boolean} value
    */
   constructor(parent, text, value = false) {
-    let label = document.createElement("label");
-    parent.appendChild(label);
-    this.input = document.createElement("input");
-    this.input.type = "checkbox";
-    this.input.required = true;
-    label.appendChild(this.input);
-    let span = document.createElement("span");
-    span.innerHTML = text;
-    label.appendChild(span);
-    this.value = value;
-    this.input.checked = value;
-    this.input.addEventListener("click", () => {
-      this.value = this.input.checked;
+    let row = createDiv(parent, "row");
+    this.input = createDiv(row, "checkbox");
+    let textDiv = createDiv(row, "checkbox-text");
+    textDiv.innerHTML = text;
+    this.setValue(value);
+    row.addEventListener("click", () => {
+      this.value = !this.value;
+      this.setValue(this.value);
     });
   }
 
@@ -231,7 +239,7 @@ export class CheckboxInput {
    */
   setValue(value) {
     this.value = value;
-    this.input.checked = value;
+    this.input.innerHTML = value ? "X" : "";
   }
 
   getValue() {

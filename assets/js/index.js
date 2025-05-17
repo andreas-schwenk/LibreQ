@@ -4,6 +4,7 @@
  * licensed under GPLv3
  */
 
+import { Editor } from "./editor.js";
 import { createNavItems } from "./nav.js";
 import { QuestionPool } from "./questions.js";
 
@@ -39,30 +40,31 @@ export function init() {
   // home
   switch (pageParam) {
     case "home": {
-      loadHTMLContent("user/home.html", "home-contents");
+      loadHTMLContent("user/html/home.html", "home-contents");
       break;
     }
     case "questions": {
-      loadHTMLContent("user/questions.html", "questions-contents");
+      loadHTMLContent("user/html/questions.html", "questions-contents");
       new QuestionPool();
       break;
     }
     case "editor": {
-      loadHTMLContent("user/editor.html", "editor-contents");
+      loadHTMLContent("user/html/editor.html", "editor-contents");
+      new Editor();
       break;
     }
     case "help": {
-      loadHTMLContent("user/help.html", "help-contents");
+      loadHTMLContent("user/html/help.html", "help-contents");
       break;
     }
     case "legal": {
-      loadHTMLContent("user/legal.html", "legal-contents");
+      loadHTMLContent("user/html/legal.html", "legal-contents");
       break;
     }
   }
 
   // footer
-  loadHTMLContent("user/footer.html", "footer-contents");
+  loadHTMLContent("user/html/footer.html", "footer-contents");
 
   // show page
   page.style.display = "block";

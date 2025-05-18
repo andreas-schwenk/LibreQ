@@ -151,8 +151,9 @@ export class TopicsEditor {
       // TODO: if a node is selected: add the new one to this as child
       let n = new TopicNode(this, this.nodes.length, 0, "");
       this.nodes.push(n);
-      this.selectedNode = n;
       this.refreshNodes();
+      n.div.click();
+      this.topicNameInput.input.focus();
     });
     createButton(this.div, "Delete Selected Topic", () => {
       if (this.selectedNode == null) return null;
@@ -222,8 +223,8 @@ export class TopicsEditor {
     for (let n of nodes) {
       if (n.level < mostLeft) mostLeft = n.level;
       if (n.level > mostRight) mostRight = n.level;
-      if (n.row < mostTop) mostTop = n.level;
-      if (n.row > mostBottom) mostBottom = n.level;
+      if (n.row < mostTop) mostTop = n.row;
+      if (n.row > mostBottom) mostBottom = n.row;
     }
 
     switch (direction) {
@@ -241,23 +242,15 @@ export class TopicsEditor {
       }
       case "up": {
         if (mostTop > 0) {
-          this.moveArrayElement(this.nodes, mostTop - 1, mostBottom + 1);
+          this.moveArrayElement(this.nodes, mostTop - 1, mostBottom);
         }
-        // let idx = this.nodes.indexOf(node);
-        // if (idx > 0) {
-        //   let tmp = this.nodes[idx];
-        //   this.nodes[idx] = this.nodes[idx - 1];
-        //   this.nodes[idx - 1] = tmp;
-        // }
         break;
       }
       case "down": {
-        // let idx = this.nodes.indexOf(node);
-        // if (idx < this.nodes.length - 1) {
-        //   let tmp = this.nodes[idx];
-        //   this.nodes[idx] = this.nodes[idx + 1];
-        //   this.nodes[idx + 1] = tmp;
-        // }
+        if (mostBottom + 1 < this.nodes.length) {
+          console.log("move down");
+          this.moveArrayElement(this.nodes, mostBottom + 1, mostTop);
+        }
         break;
       }
     }

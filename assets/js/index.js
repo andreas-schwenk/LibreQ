@@ -5,6 +5,7 @@
  */
 
 import { Editor } from "./editor.js";
+import { setLanguage } from "./lang.js";
 import { createNavItems } from "./nav.js";
 import { QuestionPool } from "./questions.js";
 
@@ -23,7 +24,10 @@ document.addEventListener("DOMContentLoaded", function () {
  * Initializes website.
  */
 export function init() {
-  // update year
+  // set language
+  setLanguage(config.language);
+
+  // update year in footer
   let year = document.getElementById("year");
   if (year) year.innerHTML = "" + new Date().getFullYear();
 
@@ -35,7 +39,7 @@ export function init() {
   let page = document.getElementById(pageParam);
 
   // nav
-  createNavItems(config.nav);
+  createNavItems();
 
   // home
   switch (pageParam) {

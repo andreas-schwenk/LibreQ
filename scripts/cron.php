@@ -1,4 +1,4 @@
-<?
+<?php
 
 /**
  * LibreQ (https://github.com/andreas-schwenk/LibreQ)
@@ -6,13 +6,38 @@
  * licensed under GPLv3
  */
 
+// TODO: make sure that not everyone can start this script!!
+
+// Preferences
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+//header("Content-Type: application/json");
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Include database configuration
-include "config.php";
+include "../user/config.php";
 
-// Connect to MariaDB
-$conn = new mysqli($db_libreq_host, $db_libreq_user, $db_libreq_password, $db_libreq_database);
-$conn_moodle = new mysqli($db_moodle_host, $db_moodle_user, $db_moodle_password, $db_moodle_database);
-
+// Connect to databases
+try {
+  $conn = new mysqli($db_libreq_host, $db_libreq_user, $db_libreq_password, $db_libreq_database);
+} catch (mysqli_sql_exception $e) {
+  echo json_encode([
+    'ok' => false,
+    'msg' => 'Error: Connection to the LibreQ database failed!'
+  ]);
+  exit();
+}
+try {
+  $conn_moodle = new mysqli($db_moodle_host, $db_moodle_user, $db_moodle_password, $db_moodle_database);
+} catch (mysqli_sql_exception $e) {
+  echo json_encode([
+    'ok' => false,
+    'msg' => 'Error: Connection to the Moodle database failed!'
+  ]);
+  exit();
+}
 
 // ---- TODO: must sync questions from moodle (do not do too much per cron call; also delete questions no longer in moodle) -----
 

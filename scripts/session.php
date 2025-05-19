@@ -6,17 +6,18 @@
  * licensed under GPLv3
  */
 
+// Start Session
+session_start();
 
-header("Access-Control-Allow-Origin: *");  // Allow requests from any domain
+// Preferences
+header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
-
-header("Content-Type: application/json"); // JSON response
+header("Content-Type: application/json");
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-session_start();
-
+// Check login
 if (isset($_SESSION['user'])) {
   echo json_encode([
     'ok' => true,

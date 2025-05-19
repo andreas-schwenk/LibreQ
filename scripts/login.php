@@ -6,31 +6,31 @@
  * licensed under GPLv3
  */
 
-header("Access-Control-Allow-Origin: *");  // Allow requests from any domain
+// Start Session
+session_start();
+
+// Preferences
+header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
-
-header("Content-Type: application/json"); // JSON response
+header("Content-Type: application/json");
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Include database configuration
-include "config.php";
+include "../user/config.php";
 
 // Connect to MariaDB
+// TODO: in all my projects use try..catch when creating the connection
 try {
   $conn = new mysqli($db_moodle_host, $db_moodle_user, $db_moodle_password, $db_moodle_database);
 } catch (mysqli_sql_exception $e) {
-  // TODO: check for connect_error in all PHP scripts!!
   echo json_encode([
     'ok' => false,
     'msg' => 'Error: Connection to Moodle database failed!'
   ]);
   exit();
 }
-
-// Session
-session_start();
 
 // Read raw body content
 $raw = file_get_contents('php://input');
@@ -45,12 +45,6 @@ if (strlen($user) == 0 || strlen($password) == 0) {
     'ok' => false,
     'msg' => 'Bitte alle Felder ausfüllen!' // TODO: handle languages everywhere in PHP scripts!!
   ]);
-  exit();
-}
-
-// Check connection
-if ($conn->connect_error) {
-  echo json_encode(["error" => "❌ Database connection failed: " . $conn->connect_error]);
   exit();
 }
 

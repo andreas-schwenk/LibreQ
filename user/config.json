@@ -1,12 +1,5 @@
 {
-  "nav": {
-    "home": "Home",
-    "questions": "Questions",
-    "editor": "Editor",
-    "moodle": "Moodle",
-    "help": "Help",
-    "legal": "Legal"
-  },
+  "language": "EN",
   "filter": [
     {
       "name": "Bloom",

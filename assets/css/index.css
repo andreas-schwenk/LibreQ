@@ -499,14 +499,14 @@ td {
 }
 
 .topic-count {
-  height: 21px;
+  height: 16px;
   margin-left: 8px;
   background-color: white;
   color: black;
   box-sizing: border-box;
   padding: 1px 6px;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -514,12 +514,12 @@ td {
 }
 
 .topic-level {
-  font-size: 18px;
+  font-size: 14px;
   box-sizing: border-box;
   padding: 4px 12px;
   margin: 1px;
   width: 100%;
-  height: 30px;
+  height: 24px;
   flex-grow: 1;
   display: flex;
   cursor: pointer;
@@ -584,7 +584,7 @@ td {
   max-width: 25px;
   background-color: rgba(211, 211, 211, 0.619);
   margin: 1px;
-  height: 30px;
+  height: 24px;
   flex-grow: 1;
   border-radius: 4px;
 }

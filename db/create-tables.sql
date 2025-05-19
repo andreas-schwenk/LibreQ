@@ -15,10 +15,10 @@ CREATE TABLE question (
   moodle_modified BIGINT,           -- mdl_question.timemodified (UNIX timestamp)
   moodle_xml      MEDIUMTEXT,       -- XML data of the question
   name            VARCHAR(512) DEFAULT '',  -- custom name of the question (optionally overwrites moodle_name)
-  topic0          BIGINT DEFAULT -1,        -- reference to topic.id; only leaves of the topic tree are referenced
-  topic1          BIGINT DEFAULT -1,        -- If more than one topic is given, then the question belongs to multiple entries in the tree
-  topic2          BIGINT DEFAULT -1,
-  topic3          BIGINT DEFAULT -1,
+  topicA          BIGINT DEFAULT -1,        -- reference to topic.id; only leaves of the topic tree are referenced
+  topicB          BIGINT DEFAULT -1,        -- If more than one topic is given, then the question belongs to multiple entries in the tree
+  topicC          BIGINT DEFAULT -1,        -- topicA, ... is used to generate the help table question_topic_cache
+  topicD          BIGINT DEFAULT -1,
   filter0         BIGINT DEFAULT -1,        -- filters: defined in tags.json
   filter1         BIGINT DEFAULT -1,
   filter2         BIGINT DEFAULT -1,
@@ -47,10 +47,18 @@ CREATE TABLE question (
   public          BOOLEAN DEFAULT FALSE   -- whether the question is visible in the public database
 );
 
-CREATE TABLE user_topic_access (
+-- precomputed helper structure
+CREATE TABLE question_topic_cache (
   id              BIGINT AUTO_INCREMENT PRIMARY KEY,
-  moodle_user_id  BIGINT,       -- mdl_user.id
-  topic           BIGINT        -- reference to topic.id
+  question_id     BIGINT,
+  topic0          BIGINT DEFAULT -1,
+  topic1          BIGINT DEFAULT -1,
+  topic2          BIGINT DEFAULT -1,
+  topic3          BIGINT DEFAULT -1,
+  topic4          BIGINT DEFAULT -1,
+  topic5          BIGINT DEFAULT -1,
+  topic6          BIGINT DEFAULT -1,
+  topic7          BIGINT DEFAULT -1
 );
 
 -- TODO: think about queries!;  e.g. "all of depth 0", "all of depth 1 with parents in list"
@@ -99,8 +107,110 @@ CREATE TABLE topic (
 --        SELECT * FROM question WHERE   TODO;
 
 
+-- Example:  
+--   Assume the following questions:
+--         id=0, topic0=2 (Math -> Basics -> Set Theory)
+--         id=1, topic0=4 (Math -> Elementary Functions)
+--   User selected topics Math -> Basics, so all questions mounted to topic
+--   Basics(id=1, depth=1, id0=0, id1=1, id2=-1) and its children are shown.
+
+
+
+--   New help table  question_topic_cache with columns id, question_id, topic0, topic1, topic2, ...
+--   Example:  id=0, question_id=1, topic0=0, topic1=1, topic2=-1
+
+--   SELECT question_id FROM question_topic_cache WHERE topic0=0 and topic1=1 and topic2=topic2;
+
+--   --> topic2=topic2 disables filtering for that column (needed to write generic statements
+--       that work for all columns)
+
+
 CREATE TABLE image (
   id       BIGINT AUTO_INCREMENT PRIMARY KEY,
   data     LONGBLOB NOT NULL,
   updated  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+
+--- Queries to update table question_topic_cache
+
+DELETE FROM question_topic_cache;
+
+INSERT INTO question_topic_cache (question_id, topic0, topic1, topic2, topic3, topic4, topic5, topic6, topic7)
+SELECT q.id, t.id0, t.id1, t.id2, t.id3, t.id4, t.id5, t.id6, t.id7
+FROM question q
+JOIN topic t ON q.topicA = t.id
+WHERE q.topicA != -1
+
+UNION ALL
+
+SELECT q.id, t.id0, t.id1, t.id2, t.id3, t.id4, t.id5, t.id6, t.id7
+FROM question q
+JOIN topic t ON q.topicB = t.id
+WHERE q.topicB != -1
+
+UNION ALL
+
+SELECT q.id, t.id0, t.id1, t.id2, t.id3, t.id4, t.id5, t.id6, t.id7
+FROM question q
+JOIN topic t ON q.topicC = t.id
+WHERE q.topicC != -1
+
+UNION ALL
+
+SELECT q.id, t.id0, t.id1, t.id2, t.id3, t.id4, t.id5, t.id6, t.id7
+FROM question q
+JOIN topic t ON q.topicD = t.id
+WHERE q.topicD != -1;
+
+
+
+-- Tables for privileges and access
+
+CREATE TABLE user_topic_access (
+  id              BIGINT AUTO_INCREMENT PRIMARY KEY,
+  moodle_user_id  BIGINT,       -- mdl_user.id
+  topic           BIGINT        -- reference to topic.id
+);
+
+CREATE TABLE resource_locks (
+  resource VARCHAR(255) PRIMARY KEY, -- uniquely identifies the locked resource
+  user     VARCHAR(255),             -- who locked it
+  locked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ***** ACQUIRE THE LOCK *****
+
+-- // TODO: need an unlocking after some time via a cron job
+
+-- $resource = "resource-abc";
+-- $user = "user@example.com";
+
+-- $stmt = $conn->prepare("INSERT IGNORE INTO resource_locks (resource, user) VALUES (?, ?)");
+-- $stmt->bind_param("ss", $resource, $user);
+-- $stmt->execute();
+
+-- if ($stmt->affected_rows === 0) {
+--     echo "Resource is already locked.";
+-- } else {
+--     echo "Lock acquired successfully.";
+-- }
+
+-- ***** RELEASE THE LOCK *****
+
+-- $stmt = $conn->prepare("DELETE FROM resource_locks WHERE resource = ? AND user = ?");
+-- $stmt->bind_param("ss", $resource, $user);
+-- $stmt->execute();
+
+-- ***** CHECK WHO HOLDS THE LOCK *****
+
+-- $stmt = $conn->prepare("SELECT user, locked_at FROM resource_locks WHERE resource = ?");
+-- $stmt->bind_param("s", $resource);
+-- $stmt->execute();
+-- $result = $stmt->get_result();
+
+-- if ($row = $result->fetch_assoc()) {
+--     echo "Resource is locked by: " . $row['user'];
+-- } else {
+--     echo "Resource is free.";
+-- }

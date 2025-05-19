@@ -24,8 +24,16 @@ export class IO {
       },
       body: JSON.stringify(body),
     })
-      .then((response) => response.json())
-      .then((data) => {
+      //.then((response) => response.json())
+      // TODO: use the following also in my other projects!!
+      .then((response) => response.text())
+      .then((text) => {
+        let data = null;
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          throw Error("Invalid JSON: " + text);
+        }
         if (msgDiv != null && "msg" in data) {
           msgDiv.innerHTML = data.msg;
           msgDiv.style.color = data.ok ? "black" : "red";
@@ -53,8 +61,16 @@ export class IO {
     const searchParams = new URLSearchParams(params);
     params["_version"] = Date.now(); // force reload
     fetch(baseUrl + scriptPath + "?" + searchParams.toString())
-      .then((response) => response.json())
-      .then((data) => {
+      //.then((response) => response.json())
+      // TODO: use the following also in my other projects!!
+      .then((response) => response.text())
+      .then((text) => {
+        let data = null;
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          throw Error("Invalid JSON: " + text);
+        }
         if (msgDiv != null && "msg" in data) {
           msgDiv.innerHTML = data.msg;
           msgDiv.style.color = data.ok ? "black" : "red";

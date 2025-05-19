@@ -6,8 +6,18 @@
  * licensed under GPLv3
  */
 
+// THIS FILE IS INTENDED FOR PUBLIC QUERIES
+
+// Preferences
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Content-Type: application/json");
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Include database configuration
-include "config.php";
+include "../user/config.php";
 
 // Connect to MariaDB
 $conn = new mysqli($db_libreq_host, $db_libreq_user, $db_libreq_password, $db_libreq_database);

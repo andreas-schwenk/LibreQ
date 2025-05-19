@@ -4,10 +4,9 @@
  * licensed under GPLv3
  */
 
-/**
- * @param {Object.<string,string>} names
- */
-export function createNavItems(names) {
+import { S } from "./lang.js";
+
+export function createNavItems() {
   let list = ["home", "questions", "editor", "moodle", "help", "legal"];
   let parent = document.getElementById("nav");
   for (let id of list) {
@@ -16,7 +15,7 @@ export function createNavItems(names) {
     item.addEventListener("click", () => {
       window.location.href = "index.html?page=" + id;
     });
-    item.innerHTML = names[id];
+    item.innerHTML = S("nav." + id);
     parent.appendChild(item);
   }
 }

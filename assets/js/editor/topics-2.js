@@ -6,7 +6,7 @@
 
 // TODO: toggle the public visibility of topics)
 
-import { SCRIPTS_URL } from "./config.js";
+import { SCRIPTS_URL } from "../config.js";
 import {
   CheckboxInput,
   createBr,
@@ -16,15 +16,15 @@ import {
   createInfo,
   createP,
   TextInput,
-} from "./dom.js";
-import { IO } from "./io.js";
+} from "../api/dom.js";
+import { IO } from "../api/io.js";
 
-/** @import { Editor } from "./editor.js"; */
+/** @import { Editor } from "./index.js"; */
 
 class TopicNode {
   tree = /** @type {TopicsEditor} */ (null);
 
-  row = 0;
+  position = 0;
   depth = 0;
   name = "";
   databaseId = -1;
@@ -33,17 +33,18 @@ class TopicNode {
   div = /** @type {HTMLElement} */ (null);
   nameDiv = /** @type {HTMLElement} */ (null);
   countDiv = /** @type {HTMLElement} */ (null);
+  databaseIdDiv = /** @type {HTMLElement} */ (null);
 
   /**
    * @param {TopicsEditor} tree
-   * @param {number} row
+   * @param {number} position
    * @param {number} depth
    * @param {string} name
    * @param {number} databaseId
    */
-  constructor(tree, row, depth, name, databaseId = -1, count = 0) {
+  constructor(tree, position, depth, name, databaseId = -1, count = 0) {
     this.tree = tree;
-    this.row = row;
+    this.position = position;
     this.depth = depth;
     this.name = name;
     this.databaseId = databaseId;
@@ -53,13 +54,20 @@ class TopicNode {
   refresh() {
     if (this.nameDiv != null) this.nameDiv.innerHTML = this.name;
     if (this.countDiv != null) this.countDiv.innerHTML = this.count.toString();
+    if (this.databaseIdDiv != null)
+      this.databaseIdDiv.innerHTML = this.databaseId.toString();
   }
 }
 
 export class TopicsEditor {
+  domainCode = 0;
+  domainName = "";
+
   editor = /** @type {Editor} */ (null);
   div = /** @type {HTMLElement} */ (null);
+
   treeDiv = /** @type {HTMLElement} */ (null);
+  generalInfo = /** @type {HTMLElement} */ (null);
   saveInfo = /** @type {HTMLElement} */ (null);
 
   selectChildrenCheckbox = /** @type {CheckboxInput} */ (null);
@@ -98,11 +106,11 @@ export class TopicsEditor {
   refreshNodes() {
     let allDivs = [];
     this.treeDiv.innerHTML = "";
-    let lastNode = null;
+    let lastNodeDepth = -1;
     const n = this.nodes.length;
     for (let i = 0; i < n; i++) {
       let node = this.nodes[i];
-      node.row = i;
+      node.position = i;
       // create row
       let row = createDiv(this.treeDiv, "topic-row");
       // indentation (leveling)
@@ -116,7 +124,7 @@ export class TopicsEditor {
       if (this.selectedChildrenNodes.includes(node))
         div.classList.add("topic-level-selected-child");
       // indentation valid?
-      if (lastNode != null && node.depth > lastNode.depth + 1) {
+      if (node.depth > lastNodeDepth + 1) {
         div.classList.add("topic-level-error");
       }
       // name
@@ -127,6 +135,10 @@ export class TopicsEditor {
       let count = createDiv(div, "topic-count");
       count.innerHTML = node.count.toString();
       node.countDiv = count;
+      // database id (TODO: only for debugging)
+      let databaseId = createDiv(div, "topic-database-id");
+      databaseId.innerHTML = node.databaseId.toString();
+      node.databaseIdDiv = databaseId;
       // action
       div.addEventListener("click", () => {
         this.selectedNode = node;
@@ -143,11 +155,18 @@ export class TopicsEditor {
           n.div.classList.add("topic-level-selected-child")
         );
       });
-      lastNode = node;
+      lastNodeDepth = node.depth;
     }
   }
 
-  show() {
+  /**
+   * @param {number} domainCode
+   * @param {string} domainName
+   */
+  show(domainCode, domainName) {
+    this.domainCode = domainCode;
+    this.domainName = domainName;
+
     this.div.innerHTML = "";
     let p = createP(this.div, `Logged in as '${this.editor.user}'.`);
     p.style.fontStyle = "italic";
@@ -159,7 +178,7 @@ export class TopicsEditor {
     createBr(this.div);
 
     createButton(this.div, "Save Changes", () => {
-      this.save();
+      // TODO: this.save();
     });
     this.saveInfo = createInfo(this.div, "");
 
@@ -179,6 +198,7 @@ export class TopicsEditor {
       this.selectedNode = null;
       this.refreshNodes();
     });
+    this.generalInfo = createInfo(this.div, "");
     this.selectChildrenCheckbox = new CheckboxInput(
       this.div,
       "Extend selection to child nodes",
@@ -212,8 +232,9 @@ export class TopicsEditor {
       }
     });
 
-    // TODO
-    this.refreshNodes();
+    // Load data
+    // TODO: this.load();
+    this.refreshNodes(); // TODO: remove, when loading is again active
   }
 
   /**
@@ -222,7 +243,7 @@ export class TopicsEditor {
    */
   #getChildrenNodes(node) {
     let res = [];
-    for (let i = node.row + 1; i < this.nodes.length; i++) {
+    for (let i = node.position + 1; i < this.nodes.length; i++) {
       if (this.nodes[i].depth <= node.depth) break;
       res.push(this.nodes[i]);
     }
@@ -242,8 +263,8 @@ export class TopicsEditor {
     for (let n of nodes) {
       if (n.depth < mostLeft) mostLeft = n.depth;
       if (n.depth > mostRight) mostRight = n.depth;
-      if (n.row < mostTop) mostTop = n.row;
-      if (n.row > mostBottom) mostBottom = n.row;
+      if (n.position < mostTop) mostTop = n.position;
+      if (n.position > mostBottom) mostBottom = n.position;
     }
 
     switch (direction) {
@@ -275,16 +296,42 @@ export class TopicsEditor {
     }
   }
 
+  load() {
+    this.nodes = [];
+    let params = { type: "load_topic_tree" };
+    IO.receive(SCRIPTS_URL, "edit.php", params, this.generalInfo, (data) => {
+      if (data.ok) {
+        let rows = data.rows;
+        for (let row of rows) {
+          let count = 0; // TODO
+          let node = new TopicNode(
+            this,
+            parseInt(row.position),
+            parseInt(row.depth),
+            row.name,
+            parseInt(row.id),
+            count
+          );
+          this.nodes.push(node);
+        }
+        this.refreshNodes();
+      }
+    });
+  }
+
   save() {
+    // TODO: remove selections, ...
     // Check validity and create pseudo-ids for new topics
     let pseudoIds = [];
     let pseudoId = -1000;
     let valid = true;
     let lastDepth = -1;
     for (let node of this.nodes) {
-      if (node.databaseId < 0) node.databaseId = pseudoId;
-      pseudoIds.push(pseudoId);
-      pseudoId--;
+      if (node.databaseId < 0) {
+        node.databaseId = pseudoId;
+        pseudoIds.push(pseudoId);
+        pseudoId--;
+      }
       if (node.depth > lastDepth + 1) {
         valid = false;
         this.saveInfo.innerHTML =
@@ -312,7 +359,7 @@ export class TopicsEditor {
         id5: id[5],
         id6: id[6],
         id7: id[7],
-        position: node.row,
+        position: node.position,
       });
     }
     // Send data
@@ -320,15 +367,13 @@ export class TopicsEditor {
     let body = { pseudoIds: pseudoIds, rows: rows };
     console.log(JSON.stringify(body, null, 4));
     IO.send(SCRIPTS_URL, "edit.php", params, body, this.saveInfo, (data) => {
-      // TODO
+      // TODO: data.rows -> import json
       let bp = 1337;
     });
-
     // info
     this.saveInfo.innerHTML = "Saved changes.";
     this.saveInfo.style.color = "green";
-
-    // TODO: must load again to get new IDs!!!
+    this.load();
   }
 
   /**

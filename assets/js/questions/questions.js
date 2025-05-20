@@ -4,13 +4,13 @@
  * licensed under GPLv3
  */
 
-import { SCRIPTS_URL } from "./config.js";
+import { SCRIPTS_URL } from "../config.js";
 import {
   createDiv,
   createHorizontalSpacer,
   createQuestionButton,
-} from "./dom.js";
-import { IO } from "./io.js";
+} from "../api/dom.js";
+import { IO } from "../api/io.js";
 
 export class QuestionPool {
   questionsDiv = /** @type {HTMLElement} */ (null);

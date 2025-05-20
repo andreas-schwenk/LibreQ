@@ -3,6 +3,7 @@
   "editor.insertSpaces": true,
   "editor.rulers": [80],
   "cSpell.words": [
+    "autocorrect",
     "esnext",
     "libreq",
     "Metacognition",

@@ -64,7 +64,7 @@ CREATE TABLE question_topic_cache (
 -- TODO: think about queries!;  e.g. "all of depth 0", "all of depth 1 with parents in list"
 -- TODO: atomic query-sequence, that UPDATEs parent nodes, but never deletes them, as long as avoidable (reduces total corruption!)
 
-CREATE TABLE topic (
+CREATE TABLE topic___OLD (
   id       BIGINT AUTO_INCREMENT PRIMARY KEY,
   name     VARCHAR(512),
   depth    INT,                -- 0..7
@@ -78,6 +78,39 @@ CREATE TABLE topic (
   id7      BIGINT DEFAULT -1,
   position BIGINT              -- for sorting purposes
 );
+
+
+
+-- TODO: ===== THIS IS NEW =====
+CREATE TABLE domain (             -- can only be edited by an admin
+  id       BIGINT AUTO_INCREMENT PRIMARY KEY,
+  code     BIGINT,                -- must never change; values: 1e6, 2e6, ...
+  name     VARCHAR(512),          -- A hashtag at the beginning of the name means "temporarily hidden"
+  position BIGINT                 -- for sorting purposes
+);
+CREATE TABLE topic (  -- includes the domain (unaltered from table domain); can be edited with advanced privileges
+  id       BIGINT AUTO_INCREMENT PRIMARY KEY,
+  code     BIGINT,
+  name     VARCHAR(512),
+  depth    INT,                -- 0..7
+  position BIGINT,             -- for sorting purposes: use e.g. the domain code + the row number
+  id0      BIGINT DEFAULT -1,  -- topic.id of depth 0 (the domain code!), or -1 if not applicable
+  id1      BIGINT DEFAULT -1,  -- topic.id of depth 1, ...
+  id2      BIGINT DEFAULT -1,  -- ...
+  id3      BIGINT DEFAULT -1,
+  id4      BIGINT DEFAULT -1,
+  id5      BIGINT DEFAULT -1,
+  id6      BIGINT DEFAULT -1,
+  id7      BIGINT DEFAULT -1
+);
+CREATE TABLE topic_write_access (
+  id              BIGINT AUTO_INCREMENT PRIMARY KEY,
+  moodle_user_id  BIGINT,       -- mdl_user.id
+  domain_code     BIGINT
+);
+
+
+
 
 -- Example:
 --------------------------------------------------------
@@ -167,7 +200,7 @@ WHERE q.topicD != -1;
 
 -- Tables for privileges and access
 
-CREATE TABLE user_topic_access (
+CREATE TABLE user_topic_access___OLD (
   id              BIGINT AUTO_INCREMENT PRIMARY KEY,
   moodle_user_id  BIGINT,       -- mdl_user.id
   topic           BIGINT        -- reference to topic.id

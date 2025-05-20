@@ -18,7 +18,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Include database configuration
-include "../user/config.php";
+include "../../user/config.php";
 
 // Connect to MariaDB
 // TODO: in all my projects use try..catch when creating the connection

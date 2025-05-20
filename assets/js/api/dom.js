@@ -129,6 +129,77 @@ export function createQuestionButton(parent, position, text, action) {
   return button;
 }
 
+export class TextAreaInput {
+  input = /** @type {HTMLTextAreaElement} */ (null);
+  savedValue = "";
+
+  /**
+   *
+   * @param {HTMLElement} parent
+   * @param {string} text
+   * @param {function} inputEvent
+   */
+  constructor(parent, text, inputEvent = null) {
+    // label
+    let label = document.createElement("div");
+    label.classList.add("input-label");
+    let labelText = document.createElement("span");
+    labelText.innerHTML = text + "&nbsp;";
+    label.appendChild(labelText);
+    this.labelInfo = document.createElement("span");
+    this.labelInfo.classList.add("input-info");
+    label.appendChild(this.labelInfo);
+    parent.appendChild(label);
+    // input
+    this.input = document.createElement("textarea");
+    this.input.setAttribute("autocorrect", "off");
+    this.input.setAttribute("autocomplete", "off");
+    this.input.setAttribute("autocapitalize", "off");
+    this.input.spellcheck = false;
+    parent.appendChild(this.input);
+    // action
+    this.input.addEventListener("input", (event) => {
+      this.#updateFont();
+      if (inputEvent != null) {
+        inputEvent(this.input.value);
+      }
+    });
+  }
+
+  #updateFont() {
+    let changed = this.input.value !== this.savedValue;
+    this.input.style.fontStyle = changed ? "italic" : "normal";
+    this.input.style.backgroundColor = changed
+      ? "rgba(225, 207, 2, 0.23)"
+      : "white";
+  }
+
+  /**
+   * @param {string} text
+   */
+  setInfo(text) {
+    this.labelInfo.innerHTML = text;
+  }
+
+  // TODO: rename method: it does not save something, but just updates visuals
+  save() {
+    this.savedValue = this.input.value;
+    this.#updateFont();
+  }
+
+  /**
+   * @param {string} v
+   */
+  setValue(v) {
+    this.savedValue = v;
+    this.input.value = v;
+  }
+
+  getValue() {
+    return this.input.value;
+  }
+}
+
 export class TextInput {
   input = /** @type {HTMLInputElement} */ (null);
   labelInfo = /** @type {HTMLElement} */ (null);

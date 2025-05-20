@@ -4,11 +4,16 @@
  * licensed under GPLv3
  */
 
-/** @import { Editor } from "./editor.js"; */
+/** @import { Editor } from "./index.js"; */
 
-import { SCRIPTS_URL } from "./config.js";
-import { createButton, createInfo, PasswordInput, TextInput } from "./dom.js";
-import { IO } from "./io.js";
+import { SCRIPTS_URL } from "../config.js";
+import {
+  createButton,
+  createInfo,
+  PasswordInput,
+  TextInput,
+} from "../api/dom.js";
+import { IO } from "../api/io.js";
 
 export class Login {
   editor = /** @type {Editor} */ (null);
@@ -28,12 +33,8 @@ export class Login {
 
   show() {
     this.div.innerHTML = "";
-    this.userInput = new TextInput(this.div, "Moodle Username", () => {
-      // TODO
-    });
-    this.passwordInput = new PasswordInput(this.div, "Moodle Password", () => {
-      // TODO
-    });
+    this.userInput = new TextInput(this.div, "Moodle Username");
+    this.passwordInput = new PasswordInput(this.div, "Moodle Password");
     createButton(this.div, "Login", () => {
       let body = {
         user: this.userInput.getValue(),

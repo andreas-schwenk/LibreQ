@@ -36,7 +36,7 @@ export class IO {
         }
         if (msgDiv != null && "msg" in data) {
           msgDiv.innerHTML = data.msg;
-          msgDiv.style.color = data.ok ? "black" : "red";
+          msgDiv.style.color = data.ok ? "green" : "red";
         }
         handler(data);
       })
@@ -73,7 +73,7 @@ export class IO {
         }
         if (msgDiv != null && "msg" in data) {
           msgDiv.innerHTML = data.msg;
-          msgDiv.style.color = data.ok ? "black" : "red";
+          msgDiv.style.color = data.ok ? "green" : "red";
         }
         handler(data);
       })

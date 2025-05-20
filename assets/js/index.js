@@ -4,10 +4,10 @@
  * licensed under GPLv3
  */
 
-import { Editor } from "./editor.js";
+import { Editor } from "./editor/index.js";
 import { setLanguage } from "./lang.js";
 import { createNavItems } from "./nav.js";
-import { QuestionPool } from "./questions.js";
+import { QuestionPool } from "./questions/questions.js";
 
 let config = {};
 

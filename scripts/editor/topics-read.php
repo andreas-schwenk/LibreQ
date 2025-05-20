@@ -6,7 +6,22 @@
  * licensed under GPLv3
  */
 
-// This file TODO
+// This file reads the "topic" table for a given domain (column "id0") from the
+// LibreQ database. The result is returned as a string inside a JSON response.
+// Each line represents one row. The depth is encoded by the number of leading
+// spaces (divided by two). After the indentation comes the "name", followed by
+// a colon and the "code". The "position" column determines the line order.
+
+/* Example
+
+Math : 0
+  Fundamentals : 1
+    Set Theory : 5
+  Numbers : 2
+  Elementary Functions : 3
+    Polynomials : 4
+*/
+
 
 // Start Session
 session_start();
@@ -35,34 +50,29 @@ try {
   exit();
 }
 
+// Get domain
 $domain = trim($_GET['domain'] ?? ""); // TODO: return error, if not given
 
-$sql = "SELECT * FROM topic WHERE id0 = ? ORDER BY position ASC";
+// Get topics for the domain
+$sql = "SELECT * FROM topic WHERE id0 = ? ORDER BY position ASC;";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $domain);
 $stmt->execute();
+$result = $stmt->get_result();
+
+// Build output string
+$topics = '';
+while ($row = $result->fetch_assoc()) {
+  $topics = $topics . str_repeat(' ', 2 * $row['depth']);
+  $topics = $topics . $row['name'] . " : " . $row['code'] . "\n";
+}
+
+// Close the connection
 $stmt->close();
 
-
-
-TODO:
-get;
-
-if (!$result) {
-  echo json_encode([
-    'ok' => false,
-    'msg' => 'Query failed'
-  ]);
-  exit();
-}
-
-$data = '';
-while ($row = $result->fetch_assoc()) {
-  $data = $data . $row['name'] . ':' . $row['code'] . "\n";
-}
-
+// Return output
 echo json_encode([
   'ok' => true,
-  'msg' => 'Loaded domains table',
-  'data' => $data
+  'msg' => 'Loaded topics table',
+  'topics' => $topics
 ]);

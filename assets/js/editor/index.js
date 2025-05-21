@@ -18,9 +18,9 @@ export class Editor {
   menu = new EditorMenu(this);
 
   constructor() {
-    IO.receive(SCRIPTS_URL, "session.php", {}, null, (data) => {
+    IO.receive(SCRIPTS_URL, "editor/session.php", {}, null, (data) => {
       if (data.ok) {
-        this.user = data.user;
+        this.user = data.data;
         this.menu.show();
         //this.menu.topicsEditor.show(); // TODO: this is a test
       } else {

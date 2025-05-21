@@ -8,32 +8,14 @@
 
 // TODO: writes topic string to the topics table
 
-// Start Session
 session_start();
-
-// Preferences
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json");
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// Include database configuration
+require_once '../api/init.php';
+require_once '../api/db.php';
 include "../../user/config.php";
 
-// TODO: check if user is allowed!
+// TODO: check if user is allowed to do that!
 
-// Connect to the database
-try {
-  $conn = new mysqli($db_libreq_host, $db_libreq_user, $db_libreq_password, $db_libreq_database);
-} catch (mysqli_sql_exception $e) {
-  echo json_encode([
-    'ok' => false,
-    'msg' => 'Error: Connection to the LibreQ database failed!'
-  ]);
-  exit();
-}
+$db = new Database($db_libreq);
 
 // Get input data
 $raw = file_get_contents('php://input');
@@ -44,13 +26,33 @@ $lines = explode("\n", $input);
 $lines = array_filter(array_map('trim', $lines), fn($line) => $line !== '');
 $n = count($lines);
 
+// helper functions
+function countLeadingSpacesDiv2(string $str): int
+{
+  preg_match('/^( *)/', $str, $matches);
+  $spaces = strlen($matches[1]);
+  return intdiv($spaces, 2); // divide by 2 as integer
+}
+function setArrayValuesToMinusOne(array &$arr, int $startIndex): void
+{
+  $count = count($arr);
+  for ($i = $startIndex; $i < $count; $i++) {
+    $arr[$i] = -1;
+  }
+}
+
 // Check input source and build rows
 $rows = [];
 $id = [-1, -1, -1, -1, -1, -1, -1, -1];
 for ($i = 0; $i < $n; $i++) {
-  $code = XXX;
-  $name = XXX;
-  $depth = XXX;
+  $parts = explode(':', $line, 2);
+  if (count($parts) !== 2)
+    exit_failure("Invalid format in line: '$line'");
+  $name = trim($parts[0]);
+  $code = trim($parts[1]);
+  $depth = countLeadingSpacesDiv2($line);
+  // TODO: check that depth does not exceed range
+  setArrayValuesToMinusOne($id, $depth + 1);
   $row = [
     'code' => $code,
     'name' => $name,
@@ -68,13 +70,17 @@ for ($i = 0; $i < $n; $i++) {
   array_push($rows, $row);
 }
 
-// Remove all rows of table "topic" with the given domain
-$sql = "REMOVE FROM topic WHERE id0 = ?;";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $domain);
-$stmt->execute();
+print_r($rows);
+exit();
 
-// Insert the rows
+// Remove all rows of table "topic" with the given domain
+// $sql = "REMOVE FROM topic WHERE id0 = ?;";
+// $stmt = $conn->prepare($sql);
+// $stmt->bind_param("s", $domain);
+// $stmt->execute();
+$db->query("REMOVE FROM topic WHERE id0 = ?", "i", $domain);
+
+// Insert rows
 // TODO
 
 

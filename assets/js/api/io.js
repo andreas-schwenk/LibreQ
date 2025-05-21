@@ -34,7 +34,7 @@ export class IO {
         } catch (e) {
           throw Error("Invalid JSON: " + text);
         }
-        if (msgDiv != null && "msg" in data) {
+        if (msgDiv != null && typeof data === "object" && "msg" in data) {
           msgDiv.innerHTML = data.msg;
           msgDiv.style.color = data.ok ? "green" : "red";
         }
@@ -71,7 +71,7 @@ export class IO {
         } catch (e) {
           throw Error("Invalid JSON: " + text);
         }
-        if (msgDiv != null && "msg" in data) {
+        if (msgDiv != null && typeof data === "object" && "msg" in data) {
           msgDiv.innerHTML = data.msg;
           msgDiv.style.color = data.ok ? "green" : "red";
         }

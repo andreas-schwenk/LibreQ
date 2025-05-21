@@ -13,6 +13,22 @@ $admin_moodle_user_id = "admin"; // TODO: implement!
 
 // ----- Database configuration -----
 
+$db_moodle = [
+  'host' => '127.0.0.1',
+  'user' => 'moodle',
+  'password' => 'moodle',
+  'database' => 'moodle'
+];
+
+$db_libreq = [
+  'host' => '127.0.0.1',
+  'user' => 'libreq',
+  'password' => 'libreq',
+  'database' => 'libreq'
+];
+
+// --- TODO: remove the following!!
+
 // Moodle
 $db_moodle_host = "127.0.0.1";
 $db_moodle_user = "moodle";

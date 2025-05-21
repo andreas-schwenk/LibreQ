@@ -42,7 +42,7 @@ export class EditorMenu {
     p.style.fontStyle = "italic";
     createH2(this.div, "Main Menu");
     createButton(this.div, "Log Out", () => {
-      IO.receive(SCRIPTS_URL, "logout.php", {}, this.info, (data) => {
+      IO.receive(SCRIPTS_URL, "editor/logout.php", {}, this.info, (data) => {
         if (data.ok) {
           this.editor.login.show();
         }

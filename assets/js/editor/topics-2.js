@@ -27,35 +27,34 @@ class TopicNode {
   position = 0;
   depth = 0;
   name = "";
-  databaseId = -1;
+  code = -1;
   count = 0;
 
   div = /** @type {HTMLElement} */ (null);
   nameDiv = /** @type {HTMLElement} */ (null);
   countDiv = /** @type {HTMLElement} */ (null);
-  databaseIdDiv = /** @type {HTMLElement} */ (null);
+  codeDiv = /** @type {HTMLElement} */ (null);
 
   /**
    * @param {TopicsEditor} tree
    * @param {number} position
    * @param {number} depth
    * @param {string} name
-   * @param {number} databaseId
+   * @param {number} code
    */
-  constructor(tree, position, depth, name, databaseId = -1, count = 0) {
+  constructor(tree, position, depth, name, code = -1, count = 0) {
     this.tree = tree;
     this.position = position;
     this.depth = depth;
     this.name = name;
-    this.databaseId = databaseId;
+    this.code = code;
     this.count = count;
   }
 
   refresh() {
     if (this.nameDiv != null) this.nameDiv.innerHTML = this.name;
     if (this.countDiv != null) this.countDiv.innerHTML = this.count.toString();
-    if (this.databaseIdDiv != null)
-      this.databaseIdDiv.innerHTML = this.databaseId.toString();
+    if (this.codeDiv != null) this.codeDiv.innerHTML = this.code.toString();
   }
 }
 
@@ -86,7 +85,7 @@ export class TopicsEditor {
 
     // TODO: test data...
     this.nodes = [
-      new TopicNode(this, 0, 0, "Math"),
+      new TopicNode(this, 0, 0, "Math", 10000),
       new TopicNode(this, 1, 1, "Fundamentals"),
       new TopicNode(this, 2, 2, "Set Theory"),
       new TopicNode(this, 3, 3, "Union, Intersection, Difference"),
@@ -98,8 +97,8 @@ export class TopicsEditor {
       new TopicNode(this, 9, 2, "Rational Functions"),
       new TopicNode(this, 10, 3, "Domain"),
       new TopicNode(this, 11, 3, "Zeros"),
-      new TopicNode(this, 12, 0, "Physics"),
-      new TopicNode(this, 13, 0, "Biology"),
+      // new TopicNode(this, 12, 0, "Physics"),
+      // new TopicNode(this, 13, 0, "Biology"),
     ];
   }
 
@@ -136,9 +135,9 @@ export class TopicsEditor {
       count.innerHTML = node.count.toString();
       node.countDiv = count;
       // database id (TODO: only for debugging)
-      let databaseId = createDiv(div, "topic-database-id");
-      databaseId.innerHTML = node.databaseId.toString();
-      node.databaseIdDiv = databaseId;
+      let code = createDiv(div, "topic-database-id");
+      code.innerHTML = node.code.toString();
+      node.codeDiv = code;
       // action
       div.addEventListener("click", () => {
         this.selectedNode = node;
@@ -178,7 +177,7 @@ export class TopicsEditor {
     createBr(this.div);
 
     createButton(this.div, "Save Changes", () => {
-      // TODO: this.save();
+      this.save();
     });
     this.saveInfo = createInfo(this.div, "");
 
@@ -218,7 +217,7 @@ export class TopicsEditor {
         ArrowDown: "down",
       }[e.key];
       if (direction != undefined) {
-        event.preventDefault();
+        e.preventDefault();
         let nodes = [this.selectedNode, ...this.selectedChildrenNodes];
         this.#moveNodes(nodes, direction);
         this.refreshNodes();
@@ -320,60 +319,82 @@ export class TopicsEditor {
   }
 
   save() {
-    // TODO: remove selections, ...
-    // Check validity and create pseudo-ids for new topics
-    let pseudoIds = [];
-    let pseudoId = -1000;
-    let valid = true;
-    let lastDepth = -1;
+    let src = "";
     for (let node of this.nodes) {
-      if (node.databaseId < 0) {
-        node.databaseId = pseudoId;
-        pseudoIds.push(pseudoId);
-        pseudoId--;
+      if (node.code < 0) {
+        // TODO: get the smallest available unused number, starting from the domain code
       }
-      if (node.depth > lastDepth + 1) {
-        valid = false;
-        this.saveInfo.innerHTML =
-          "ERROR: Invalid structure (refer to red lines)";
-        this.saveInfo.style.color = "red";
-        return;
+      src += "  ".repeat(node.depth) + node.name;
+      src += " : " + node.code.toString() + "\n";
+    }
+    console.log(src);
+    let body = { domain: this.domainCode, src: src };
+    return; // TODO
+    IO.send(
+      SCRIPTS_URL,
+      "editor/topics-write.php",
+      {},
+      body,
+      this.saveInfo,
+      (data) => {
+        // TODO
       }
-      lastDepth = node.depth;
-    }
-    // Gather data
-    let id = new Array(8).fill(-1);
-    let rows = [];
-    for (let node of this.nodes) {
-      id[node.depth] = node.databaseId;
-      id.fill(-1, node.depth + 1);
-      rows.push({
-        id: node.databaseId,
-        name: node.name,
-        depth: node.depth,
-        id0: id[0],
-        id1: id[1],
-        id2: id[2],
-        id3: id[3],
-        id4: id[4],
-        id5: id[5],
-        id6: id[6],
-        id7: id[7],
-        position: node.position,
-      });
-    }
-    // Send data
-    let params = { type: "save_topic_tree" };
-    let body = { pseudoIds: pseudoIds, rows: rows };
-    console.log(JSON.stringify(body, null, 4));
-    IO.send(SCRIPTS_URL, "edit.php", params, body, this.saveInfo, (data) => {
-      // TODO: data.rows -> import json
-      let bp = 1337;
-    });
-    // info
-    this.saveInfo.innerHTML = "Saved changes.";
-    this.saveInfo.style.color = "green";
-    this.load();
+    );
+
+    // // TODO: remove selections, ...
+    // // Check validity and create pseudo-ids for new topics
+    // let pseudoIds = [];
+    // let pseudoId = -1000;
+    // let valid = true;
+    // let lastDepth = -1;
+    // for (let node of this.nodes) {
+    //   if (node.databaseId < 0) {
+    //     node.databaseId = pseudoId;
+    //     pseudoIds.push(pseudoId);
+    //     pseudoId--;
+    //   }
+    //   if (node.depth > lastDepth + 1) {
+    //     valid = false;
+    //     this.saveInfo.innerHTML =
+    //       "ERROR: Invalid structure (refer to red lines)";
+    //     this.saveInfo.style.color = "red";
+    //     return;
+    //   }
+    //   lastDepth = node.depth;
+    // }
+    // // Gather data
+    // let id = new Array(8).fill(-1);
+    // let rows = [];
+    // for (let node of this.nodes) {
+    //   id[node.depth] = node.databaseId;
+    //   id.fill(-1, node.depth + 1);
+    //   rows.push({
+    //     id: node.databaseId,
+    //     name: node.name,
+    //     depth: node.depth,
+    //     id0: id[0],
+    //     id1: id[1],
+    //     id2: id[2],
+    //     id3: id[3],
+    //     id4: id[4],
+    //     id5: id[5],
+    //     id6: id[6],
+    //     id7: id[7],
+    //     position: node.position,
+    //   });
+    // }
+    // // Send data
+    // let params = { type: "save_topic_tree" };
+    // let body = { pseudoIds: pseudoIds, rows: rows };
+    // console.log(JSON.stringify(body, null, 4));
+    // IO.send(SCRIPTS_URL, "edit.php", params, body, this.saveInfo, (data) => {
+    //   // TODO: data.rows -> import json
+    //   let bp = 1337;
+    // });
+    // // info
+    // this.saveInfo.innerHTML = "Saved changes.";
+    // this.saveInfo.style.color = "green";
+    // this.load();
   }
 
   /**

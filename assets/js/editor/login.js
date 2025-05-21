@@ -40,7 +40,7 @@ export class Login {
         user: this.userInput.getValue(),
         password: this.passwordInput.getValue(),
       };
-      IO.send(SCRIPTS_URL, "login.php", {}, body, this.info, (data) => {
+      IO.send(SCRIPTS_URL, "editor/login.php", {}, body, this.info, (data) => {
         if (data.ok) {
           this.userInput.save();
           this.passwordInput.save();

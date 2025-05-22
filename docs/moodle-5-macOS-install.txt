@@ -1,0 +1,107 @@
+=== MOODLE 5 INSTALLATION ON MACOS ===
+
+This guide does not require a web server like e.g. Apache.
+We run  php -S  for creating a development server.
+The setup is fast and simple for rudimentary tests.
+
+TODO: no crontab yet!!!!!
+
+
+brew install mariadb php git maxima libyaml gnuplot
+
+
+The following is for better YAML performance, but can be skipped in case of installation errors...
+
+echo $(brew --prefix libyaml) | pecl install yaml
+
+
+php --ini     # shows path of php.ini, e.g. /opt/homebrew/etc/php/8.4/php.ini
+
+nano /opt/homebrew/etc/php/8.4/php.ini
+
+uncomment (remove ";") the line with max_input_vars and set it to 10000:
+
+max_input_vars = 10000
+
+mariadb
+
+create database moodle;
+CREATE USER 'moodle'@'127.0.0.1' IDENTIFIED BY 'moodle';
+GRANT ALL PRIVILEGES ON moodle.* TO 'moodle'@'127.0.0.1';
+
+mariadb -h 127.0.0.1 -u moodle -p
+
+mkdir -p ~/moodle/moodledata/
+download moodle.zip -> extract to ~/moodle/moodle     
+(or use git:  https://docs.moodle.org/500/en/Git_for_Administrators#Obtaining_the_code_from_Git)
+
+nano ~/moodle/moodle/config.php
+
+-----
+<?php  // Moodle configuration file
+unset($CFG);
+global $CFG;
+$CFG = new stdClass();
+$CFG->dbtype    = 'mariadb';       // or 'mysqli' if not using MariaDB
+$CFG->dblibrary = 'native';
+$CFG->dbhost    = '127.0.0.1';
+$CFG->dbname    = 'moodle';
+$CFG->dbuser    = 'moodle';
+$CFG->dbpass    = 'moodle';
+$CFG->prefix    = 'mdl_';
+$CFG->dboptions = [
+    'dbpersist' => false,
+    'dbport'    => '',
+    'dbsocket'  => '',
+    'dbcollation' => 'utf8mb4_unicode_ci',
+];
+$CFG->wwwroot   = 'http://localhost:8123';
+$CFG->dataroot  = '/Users/andi/moodle/moodledata';   // !!!!! MUST REPLACE USERNAME
+$CFG->admin     = 'admin';
+$CFG->directorypermissions = 0777;
+require_once(__DIR__ . '/lib/setup.php');
+-----
+
+cd ~/moodle/moodle
+php -S 127.0.0.1:8123
+
+open http://127.0.0.1:8123 in browser and install Moodle via GUI (ignore "site not https" warning, since we are running on localhost...)
+
+For "New settings - Support contact", "Support email", choose e.g. "dev@localhost.localdomain"
+
+=== Optional: STACK INSTALLATION ===
+
+maxima --version      # e.g. shows "Maxima 5.47.0"; the version number must be chosen in setup, so remember it!
+
+git clone https://github.com/maths/moodle-qbehaviour_dfexplicitvaildate.git ~/moodle/moodle/question/behaviour/dfexplicitvaildate
+git clone https://github.com/maths/moodle-qbehaviour_dfcbmexplicitvaildate.git ~/moodle/moodle/question/behaviour/dfcbmexplicitvaildate
+git clone https://github.com/maths/moodle-qbehaviour_adaptivemultipart.git ~/moodle/moodle/question/behaviour/adaptivemultipart
+git clone https://github.com/maths/moodle-qtype_stack.git ~/moodle/moodle/question/type/stack
+
+
+Run the moodle cron job at least once, or better, add it to your crontab (change /Users/andi !!)
+
+cd ~/moodle/moodle
+php admin/cli/cron.php 
+
+crontab -e
+* * * * * /opt/homebrew/bin/php /Users/andi/moodle/moodle/admin/cli/cron.php >/dev/null 2>&1
+
+
+Configure STACK:
+
+which maxima    # returns e.g.  /opt/homebrew/bin/maxima
+which gnuplot   # returns e.g.  /opt/homebrew/bin/gnuplot
+
+moodle -> site administration -> plugins -> question types -> STACK
+
+for "Maxima command" enter the following (or whatever was output above)   /opt/homebrew/bin/maxima --very-quiet
+for "Plot command" enter the following (or whatever was output above)   /opt/homebrew/bin/gnuplot
+
+click on "healthcheck script" link
+
+click on "create maxima image"
+
+
+
+

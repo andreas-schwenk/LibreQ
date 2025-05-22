@@ -15,6 +15,8 @@ import {
 } from "../api/dom.js";
 import { IO } from "../api/io.js";
 
+// TODO: press ENTER to log in, when the focus is in password input box
+
 export class Login {
   editor = /** @type {Editor} */ (null);
   div = /** @type {HTMLElement} */ (null);

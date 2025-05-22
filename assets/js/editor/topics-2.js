@@ -318,18 +318,38 @@ export class TopicsEditor {
     });
   }
 
+  /**
+   * @returns {number[]}
+   */
+  #getAvailableCodes() {
+    // the maximum number of codes required is the number of nodes
+    const n = this.nodes.length;
+    let codes = this.nodes.map((n) => n.code).filter((n) => n >= 0);
+    const existing = new Set(codes);
+    existing.add(this.domainCode);
+    const min = Math.min(...codes);
+    const result = [];
+    let candidate = min + 1;
+    while (result.length < n) {
+      if (!existing.has(candidate)) {
+        result.push(candidate);
+      }
+      candidate++;
+    }
+    return result;
+  }
+
   save() {
+    let newCodes = this.#getAvailableCodes();
+    let newCodeIdx = 0;
     let src = "";
     for (let node of this.nodes) {
-      if (node.code < 0) {
-        // TODO: get the smallest available unused number, starting from the domain code
-      }
+      if (node.code < 0) node.code = newCodes[newCodeIdx++];
       src += "  ".repeat(node.depth) + node.name;
       src += " : " + node.code.toString() + "\n";
     }
     console.log(src);
     let body = { domain: this.domainCode, src: src };
-    return; // TODO
     IO.send(
       SCRIPTS_URL,
       "editor/topics-write.php",

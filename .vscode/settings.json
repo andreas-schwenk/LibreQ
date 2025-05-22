@@ -2,15 +2,20 @@
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "editor.rulers": [80],
+  "editor.formatOnSave": true,
   "cSpell.words": [
+    "Andreas",
     "autocorrect",
     "esnext",
+    "healthcheck",
     "libreq",
     "Metacognition",
     "moodle",
+    "moodledata",
     "multichoice",
     "nodenext",
     "qtype",
+    "Schwenk",
     "timecreated",
     "timemodified"
   ]

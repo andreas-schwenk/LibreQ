@@ -22,14 +22,18 @@ export class QuestionPool {
     let errorDiv = document.createElement("div"); // TODO: CSS
 
     let params = {};
-    IO.receive(SCRIPTS_URL, "query.php", params, errorDiv, (data) => {
+    IO.receive(SCRIPTS_URL, "questions.php", params, errorDiv, (data) => {
       if (data.ok) {
-        this.fromJSON(data.data);
+        let rows = JSON.parse(data.data).rows;
+        this.fromJSON(rows);
         this.createDOM();
       }
     });
   }
 
+  /**
+   * @param {any} data
+   */
   fromJSON(data) {
     this.questions = [];
     for (let d of data) {

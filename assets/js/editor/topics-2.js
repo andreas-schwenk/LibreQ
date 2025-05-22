@@ -84,22 +84,22 @@ export class TopicsEditor {
     this.editor = editor;
 
     // TODO: test data...
-    this.nodes = [
-      new TopicNode(this, 0, 0, "Math", 10000),
-      new TopicNode(this, 1, 1, "Fundamentals"),
-      new TopicNode(this, 2, 2, "Set Theory"),
-      new TopicNode(this, 3, 3, "Union, Intersection, Difference"),
-      new TopicNode(this, 4, 3, "Cartesian Product"),
-      new TopicNode(this, 5, 2, "Numbers"),
-      new TopicNode(this, 6, 1, "Elementary Functions"),
-      new TopicNode(this, 7, 2, "Polynomials"),
-      new TopicNode(this, 8, 3, "Zeros"),
-      new TopicNode(this, 9, 2, "Rational Functions"),
-      new TopicNode(this, 10, 3, "Domain"),
-      new TopicNode(this, 11, 3, "Zeros"),
-      // new TopicNode(this, 12, 0, "Physics"),
-      // new TopicNode(this, 13, 0, "Biology"),
-    ];
+    // this.nodes = [
+    //   new TopicNode(this, 0, 0, "Math", 10000),
+    //   new TopicNode(this, 1, 1, "Fundamentals"),
+    //   new TopicNode(this, 2, 2, "Set Theory"),
+    //   new TopicNode(this, 3, 3, "Union, Intersection, Difference"),
+    //   new TopicNode(this, 4, 3, "Cartesian Product"),
+    //   new TopicNode(this, 5, 2, "Numbers"),
+    //   new TopicNode(this, 6, 1, "Elementary Functions"),
+    //   new TopicNode(this, 7, 2, "Polynomials"),
+    //   new TopicNode(this, 8, 3, "Zeros"),
+    //   new TopicNode(this, 9, 2, "Rational Functions"),
+    //   new TopicNode(this, 10, 3, "Domain"),
+    //   new TopicNode(this, 11, 3, "Zeros"),
+    //   // new TopicNode(this, 12, 0, "Physics"),
+    //   // new TopicNode(this, 13, 0, "Biology"),
+    // ];
   }
 
   refreshNodes() {
@@ -135,25 +135,26 @@ export class TopicsEditor {
       count.innerHTML = node.count.toString();
       node.countDiv = count;
       // database id (TODO: only for debugging)
-      let code = createDiv(div, "topic-database-id");
+      let code = createDiv(div, "topic-code");
       code.innerHTML = node.code.toString();
       node.codeDiv = code;
-      // action
-      div.addEventListener("click", () => {
-        this.selectedNode = node;
-        this.selectedChildrenNodes = this.selectChildrenCheckbox.getValue()
-          ? this.#getChildrenNodes(node)
-          : [];
-        this.topicNameInput.setValue(node.name);
-        allDivs.forEach((d) => {
-          d.classList.remove("topic-level-selected");
-          d.classList.remove("topic-level-selected-child");
+      // action (the root node is fixed!)
+      if (i > 0)
+        div.addEventListener("click", () => {
+          this.selectedNode = node;
+          this.selectedChildrenNodes = this.selectChildrenCheckbox.getValue()
+            ? this.#getChildrenNodes(node)
+            : [];
+          this.topicNameInput.setValue(node.name);
+          allDivs.forEach((d) => {
+            d.classList.remove("topic-level-selected");
+            d.classList.remove("topic-level-selected-child");
+          });
+          div.classList.add("topic-level-selected");
+          this.selectedChildrenNodes.forEach((n) =>
+            n.div.classList.add("topic-level-selected-child")
+          );
         });
-        div.classList.add("topic-level-selected");
-        this.selectedChildrenNodes.forEach((n) =>
-          n.div.classList.add("topic-level-selected-child")
-        );
-      });
       lastNodeDepth = node.depth;
     }
   }
@@ -184,8 +185,12 @@ export class TopicsEditor {
     createBr(this.div);
 
     createButton(this.div, "Add Topic", () => {
-      // TODO: if a node is selected: add the new one to this as child
-      let n = new TopicNode(this, this.nodes.length, 0, "");
+      let depth = 1;
+      // TODO: create child of currently selected node
+      // if (this.selectedNode != null) {
+      //   depth = this.selectedNode.depth;
+      // }
+      let n = new TopicNode(this, this.nodes.length, depth, "");
       this.nodes.push(n);
       this.refreshNodes();
       n.div.click();
@@ -232,8 +237,8 @@ export class TopicsEditor {
     });
 
     // Load data
-    // TODO: this.load();
-    this.refreshNodes(); // TODO: remove, when loading is again active
+    this.load();
+    //this.refreshNodes(); // TODO: remove, when loading is again active
   }
 
   /**
@@ -265,57 +270,67 @@ export class TopicsEditor {
       if (n.position < mostTop) mostTop = n.position;
       if (n.position > mostBottom) mostBottom = n.position;
     }
-
     switch (direction) {
       case "left": {
-        if (mostLeft > 0) {
-          for (let n of nodes) n.depth--;
-        }
+        // moving to the root level is forbidden
+        if (mostLeft > 1) for (let n of nodes) n.depth--;
         break;
       }
       case "right": {
-        if (mostRight < 7) {
-          for (let n of nodes) n.depth++;
-        }
+        if (mostRight < 7) for (let n of nodes) n.depth++;
         break;
       }
       case "up": {
-        if (mostTop > 0) {
+        if (mostTop > 0)
           this.moveArrayElement(this.nodes, mostTop - 1, mostBottom);
-        }
         break;
       }
       case "down": {
-        if (mostBottom + 1 < this.nodes.length) {
-          console.log("move down");
+        if (mostBottom + 1 < this.nodes.length)
           this.moveArrayElement(this.nodes, mostBottom + 1, mostTop);
-        }
         break;
       }
     }
   }
 
+  /**
+   * @param {string} str
+   * @returns {number}
+   */
+  #countLeadingSpaces(str) {
+    const match = str.match(/^ */);
+    return match ? match[0].length : 0;
+  }
+
   load() {
     this.nodes = [];
-    let params = { type: "load_topic_tree" };
-    IO.receive(SCRIPTS_URL, "edit.php", params, this.generalInfo, (data) => {
-      if (data.ok) {
-        let rows = data.rows;
-        for (let row of rows) {
-          let count = 0; // TODO
-          let node = new TopicNode(
-            this,
-            parseInt(row.position),
-            parseInt(row.depth),
-            row.name,
-            parseInt(row.id),
-            count
-          );
-          this.nodes.push(node);
+    let params = { domain: this.domainCode };
+    IO.receive(
+      SCRIPTS_URL,
+      "editor/topics-read.php",
+      params,
+      this.generalInfo,
+      (data) => {
+        if (data.ok) {
+          //console.log("== LOADED: ==");
+          //console.log(data.data);
+          let src = data.data;
+          let lines = src.split("\n").filter((lines) => lines.trim() !== "");
+          this.nodes = [];
+          const n = lines.length;
+          for (let i = 0; i < n; i++) {
+            let line = lines[i];
+            let tokens = line.split(":");
+            let name = tokens[0].trim();
+            let depth = this.#countLeadingSpaces(line) >> 1;
+            let code = parseInt(tokens[1].trim());
+            let node = new TopicNode(this, i, depth, name, code);
+            this.nodes.push(node);
+          }
+          this.refreshNodes();
         }
-        this.refreshNodes();
       }
-    });
+    );
   }
 
   /**
@@ -343,10 +358,18 @@ export class TopicsEditor {
     let newCodes = this.#getAvailableCodes();
     let newCodeIdx = 0;
     let src = "";
+    let lastDepth = -1;
     for (let node of this.nodes) {
+      if (node.depth > lastDepth + 1) {
+        this.saveInfo.style.color = "red";
+        this.saveInfo.innerHTML =
+          "Error: The layout is badly structured. The red marked topics must be moved to the left.";
+        return;
+      }
       if (node.code < 0) node.code = newCodes[newCodeIdx++];
       src += "  ".repeat(node.depth) + node.name;
       src += " : " + node.code.toString() + "\n";
+      lastDepth = node.depth;
     }
     console.log(src);
     let body = { domain: this.domainCode, src: src };
@@ -357,64 +380,12 @@ export class TopicsEditor {
       body,
       this.saveInfo,
       (data) => {
-        // TODO
+        // load again
+        if (data.ok) {
+          this.load();
+        }
       }
     );
-
-    // // TODO: remove selections, ...
-    // // Check validity and create pseudo-ids for new topics
-    // let pseudoIds = [];
-    // let pseudoId = -1000;
-    // let valid = true;
-    // let lastDepth = -1;
-    // for (let node of this.nodes) {
-    //   if (node.databaseId < 0) {
-    //     node.databaseId = pseudoId;
-    //     pseudoIds.push(pseudoId);
-    //     pseudoId--;
-    //   }
-    //   if (node.depth > lastDepth + 1) {
-    //     valid = false;
-    //     this.saveInfo.innerHTML =
-    //       "ERROR: Invalid structure (refer to red lines)";
-    //     this.saveInfo.style.color = "red";
-    //     return;
-    //   }
-    //   lastDepth = node.depth;
-    // }
-    // // Gather data
-    // let id = new Array(8).fill(-1);
-    // let rows = [];
-    // for (let node of this.nodes) {
-    //   id[node.depth] = node.databaseId;
-    //   id.fill(-1, node.depth + 1);
-    //   rows.push({
-    //     id: node.databaseId,
-    //     name: node.name,
-    //     depth: node.depth,
-    //     id0: id[0],
-    //     id1: id[1],
-    //     id2: id[2],
-    //     id3: id[3],
-    //     id4: id[4],
-    //     id5: id[5],
-    //     id6: id[6],
-    //     id7: id[7],
-    //     position: node.position,
-    //   });
-    // }
-    // // Send data
-    // let params = { type: "save_topic_tree" };
-    // let body = { pseudoIds: pseudoIds, rows: rows };
-    // console.log(JSON.stringify(body, null, 4));
-    // IO.send(SCRIPTS_URL, "edit.php", params, body, this.saveInfo, (data) => {
-    //   // TODO: data.rows -> import json
-    //   let bp = 1337;
-    // });
-    // // info
-    // this.saveInfo.innerHTML = "Saved changes.";
-    // this.saveInfo.style.color = "green";
-    // this.load();
   }
 
   /**

@@ -22,57 +22,28 @@ Math : 0
     Polynomials : 4
 */
 
-
-// Start Session
 session_start();
-
-// Preferences
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json");
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// Include database configuration
+require_once '../api/init.php';
+require_once '../api/db.php';
 include "../../user/config.php";
 
-// TODO: check if session-user is set and it is a user that has topic tree write access!
+// TODO: check if user is allowed to do that!
 
-// Connect to the database
-try {
-  $conn = new mysqli($db_libreq_host, $db_libreq_user, $db_libreq_password, $db_libreq_database);
-} catch (mysqli_sql_exception $e) {
-  echo json_encode([
-    'ok' => false,
-    'msg' => 'Error: Connection to the LibreQ database failed!'
-  ]);
-  exit();
-}
+$db = new Database($db_libreq);
 
 // Get domain
 $domain = trim($_GET['domain'] ?? ""); // TODO: return error, if not given
 
 // Get topics for the domain
 $sql = "SELECT * FROM topic WHERE id0 = ? ORDER BY position ASC;";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $domain);
-$stmt->execute();
-$result = $stmt->get_result();
+$rows = $db->query($sql, "i", [$domain]);
 
 // Build output string
 $topics = '';
-while ($row = $result->fetch_assoc()) {
+foreach($rows as $row) {
   $topics = $topics . str_repeat(' ', 2 * $row['depth']);
   $topics = $topics . $row['name'] . " : " . $row['code'] . "\n";
 }
 
-// Close the connection
-$stmt->close();
-
 // Return output
-echo json_encode([
-  'ok' => true,
-  'msg' => 'Loaded topics table',
-  'topics' => $topics
-]);
+exit_success('Loaded topics table', $topics);

@@ -1,48 +1,91 @@
+TODO: remove this file soon!!
+
+
 === MOODLE 5 INSTALLATION ON MACOS ===
 
 This guide does not require a web server like e.g. Apache.
 We run  php -S  for creating a development server.
 The setup is fast and simple for rudimentary tests.
+For production systems, use the Linux guide.
 
-TODO: no crontab yet!!!!!
+We use Homebrew for simplicity. Install it as describe here: https://brew.sh
 
+We assume the following paths; you may change it, but be careful to set your custom path in all commands of this guide:
+
+LibreQ directory: ~/LibreQ/
+Moodle directory: ~/LibreQ/moodle
+Moodle-data directory: ~/LibreQ/moodledata
+
+Create the directories:
+
+mkdir -p ~/LibreQ/moodle
+mkdir -p ~/LibreQ/moodledata
+
+Install the basic dependencies:
 
 brew install mariadb php git maxima libyaml gnuplot
-
 
 The following is for better YAML performance, but can be skipped in case of installation errors...
 
 echo $(brew --prefix libyaml) | pecl install yaml
 
+Set up php:
 
-php --ini     # shows path of php.ini, e.g. /opt/homebrew/etc/php/8.4/php.ini
+Use the following command to get the path of the php.ini file (for example, the output is /opt/homebrew/etc/php/8.4/php.ini):
+
+php --ini
+
+Edit the php init file (for example with the nano editor). Use the path from above.
 
 nano /opt/homebrew/etc/php/8.4/php.ini
 
-uncomment (remove ";") the line with max_input_vars and set it to 10000:
+Uncomment (remove ";") of the line with "max_input_vars" and set it to 10000, so that is looks as follows:
 
 max_input_vars = 10000
 
+
+We now set up the database. Open it in a terminal:
+
 mariadb
+
+We create the database and a user as follows:
 
 create database moodle;
 CREATE USER 'moodle'@'127.0.0.1' IDENTIFIED BY 'moodle';
 GRANT ALL PRIVILEGES ON moodle.* TO 'moodle'@'127.0.0.1';
 
+Exit with "exit;" and then try to log in with the new user:
+
 mariadb -h 127.0.0.1 -u moodle -p
 
-mkdir -p ~/moodle/moodledata/
-download moodle.zip -> extract to ~/moodle/moodle     
-(or use git:  https://docs.moodle.org/500/en/Git_for_Administrators#Obtaining_the_code_from_Git)
 
-nano ~/moodle/moodle/config.php
+We need a directory, where moodle can put its working files, uploads etc:
 
------
+mkdir -p ~/LibreQ/moodledata/
+
+
+Then Moodle itself must be obtained. We assume here Moodle 5:
+
+cd ~/LibreQ/
+git clone git://git.moodle.org/moodle.git
+git branch --track MOODLE_500_STABLE origin/MOODLE_500_STABLE
+git checkout MOODLE_500_STABLE
+
+
+
+Edit the config file with your favorite editor (here: nano):
+
+nano ~/LibreQ/moodle/config.php
+
+Put the following contents. You may need to change the database data. Make sure to replace USER with your user name.
+Here the contents:
+
+
 <?php  // Moodle configuration file
 unset($CFG);
 global $CFG;
 $CFG = new stdClass();
-$CFG->dbtype    = 'mariadb';       // or 'mysqli' if not using MariaDB
+$CFG->dbtype    = 'mariadb';
 $CFG->dblibrary = 'native';
 $CFG->dbhost    = '127.0.0.1';
 $CFG->dbname    = 'moodle';
@@ -56,52 +99,73 @@ $CFG->dboptions = [
     'dbcollation' => 'utf8mb4_unicode_ci',
 ];
 $CFG->wwwroot   = 'http://localhost:8123';
-$CFG->dataroot  = '/Users/andi/moodle/moodledata';   // !!!!! MUST REPLACE USERNAME
+$CFG->dataroot  = '/Users/USER/LibreQ/moodledata';   // !!!!! MUST REPLACE USERNAME
 $CFG->admin     = 'admin';
 $CFG->directorypermissions = 0777;
 require_once(__DIR__ . '/lib/setup.php');
------
 
-cd ~/moodle/moodle
+
+
+
+Start the PHP web server:
+
+cd ~/LibreQ/moodle
+
 php -S 127.0.0.1:8123
 
 open http://127.0.0.1:8123 in browser and install Moodle via GUI (ignore "site not https" warning, since we are running on localhost...)
 
 For "New settings - Support contact", "Support email", choose e.g. "dev@localhost.localdomain"
 
-=== Optional: STACK INSTALLATION ===
-
-maxima --version      # e.g. shows "Maxima 5.47.0"; the version number must be chosen in setup, so remember it!
-
-git clone https://github.com/maths/moodle-qbehaviour_dfexplicitvaildate.git ~/moodle/moodle/question/behaviour/dfexplicitvaildate
-git clone https://github.com/maths/moodle-qbehaviour_dfcbmexplicitvaildate.git ~/moodle/moodle/question/behaviour/dfcbmexplicitvaildate
-git clone https://github.com/maths/moodle-qbehaviour_adaptivemultipart.git ~/moodle/moodle/question/behaviour/adaptivemultipart
-git clone https://github.com/maths/moodle-qtype_stack.git ~/moodle/moodle/question/type/stack
 
 
-Run the moodle cron job at least once, or better, add it to your crontab (change /Users/andi !!)
+Run the moodle cron job at least once:
 
-cd ~/moodle/moodle
-php admin/cli/cron.php 
+cd ~/LibreQ/moodle
+php admin/cli/cron.php
+
+Optionally (if you like to run Moodle in an productive way, and are willing to offer the resources of running cronjobs), set up a cron job that runs every minute:
 
 crontab -e
-* * * * * /opt/homebrew/bin/php /Users/andi/moodle/moodle/admin/cli/cron.php >/dev/null 2>&1
 
+Put the following line, and adjust USER to your user name:
+
+* * * * * /opt/homebrew/bin/php /Users/USER/LibreQ/moodle/admin/cli/cron.php >/dev/null 2>&1
+
+
+
+Installation of the STACK plugin:
+
+We need some dependencies:
+
+git clone https://github.com/maths/moodle-qbehaviour_dfexplicitvaildate.git ~/LibreQ/moodle/question/behaviour/dfexplicitvaildate
+git clone https://github.com/maths/moodle-qbehaviour_dfcbmexplicitvaildate.git ~/LibreQ/moodle/question/behaviour/dfcbmexplicitvaildate
+git clone https://github.com/maths/moodle-qbehaviour_adaptivemultipart.git ~/LibreQ/moodle/question/behaviour/adaptivemultipart
+git clone https://github.com/maths/moodle-qtype_stack.git ~/LibreQ/moodle/question/type/stack
 
 Configure STACK:
 
-which maxima    # returns e.g.  /opt/homebrew/bin/maxima
-which gnuplot   # returns e.g.  /opt/homebrew/bin/gnuplot
+First, get the paths of maxima and GnuPlot as follows:
+
+which maxima    
+
+Returns e.g.  /opt/homebrew/bin/maxima
+
+which gnuplot
+
+Returns e.g.  /opt/homebrew/bin/gnuplot
+
+In Moodle, use the following menu for the configuration:
 
 moodle -> site administration -> plugins -> question types -> STACK
 
-for "Maxima command" enter the following (or whatever was output above)   /opt/homebrew/bin/maxima --very-quiet
-for "Plot command" enter the following (or whatever was output above)   /opt/homebrew/bin/gnuplot
+In the input field "Maxima command" enter the following (or whatever was output above)   /opt/homebrew/bin/maxima --very-quiet
 
-click on "healthcheck script" link
+In the input field "Plot command" enter the following (or whatever was output above)   /opt/homebrew/bin/gnuplot
 
-click on "create maxima image"
+Click on then "healthcheck script" button.
+
+Click on "create maxima image" button.
 
 
-
-
+Now Moodle should be set up to run LibreQ locally.

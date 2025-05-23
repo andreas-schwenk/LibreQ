@@ -15,12 +15,7 @@ include "../../user/config.php";
 
 $db = new Database($db_moodle);
 $course_id = trim($_GET['course_id'] ?? ""); // TODO: return error, if not given
-$sql = "SELECT q.id AS question_id,
-       q.name AS question_name,
-       q.qtype,
-       q.timecreated,
-       q.timemodified,
-       qc.name AS category_name
+$sql = "SELECT q.id AS question_id
       FROM mdl_question_versions qv
       JOIN (
           SELECT questionbankentryid, MAX(version) AS max_version
@@ -40,4 +35,4 @@ $data = json_encode([
 ]);
 exit_success('Loaded questions', $data);
 
-// TODO: check permission!!!
+// TODO: check permissions!!!

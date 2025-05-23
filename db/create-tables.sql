@@ -4,6 +4,28 @@
 -- Junction tables (e.g., for tags or topics) are not used to maintain a flat and easily queryable structure.
 -- This follows the KISS principle, prioritizing simplicity and performance over full normalization,
 -- even if it results in slightly higher data usage or less flexibility.
+
+
+-- This table is used for faster queries within the LibreQ database;
+-- The table is updated by cron.php
+-- CREATE TABLE mdl_question (
+--   id BIGINT AUTO_INCREMENT PRIMARY KEY,
+--   name VARCHAR(255),
+--   qtype VARCHAR(20),
+--   timecreated BIGINT,
+--   timemodified BIGINT
+-- );
+
+CREATE TABLE moodle_hierarchy (
+  id BIGINT PRIMARY KEY,
+  depth INT,                             -- 0=course, 1=bank, 2..=category
+  name VARCHAR(256),
+  course_id BIGINT
+);
+
+
+
+
 CREATE TABLE question (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   moodle_id BIGINT,

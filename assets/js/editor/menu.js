@@ -14,7 +14,8 @@ import {
 } from "../api/dom.js";
 import { DomainsEditor } from "./domains.js";
 import { IO } from "../api/io.js";
-import { TopicsEntry } from "./topics-1.js";
+import { TopicsDomainSelection } from "./topics-1.js";
+import { TaggingMoodleCourseSelection as TaggingCourseSelection } from "./tagging.js";
 
 /** @import { Editor } from "./index.js"; */
 
@@ -23,7 +24,8 @@ export class EditorMenu {
   div = /** @type {HTMLElement} */ (null);
   info = /** @type {HTMLElement} */ (null);
 
-  topicsEntry = /** @type {TopicsEntry} */ (null);
+  taggingCourseSelection = /** @type {TaggingCourseSelection} */ (null);
+  topicsDomainSelection = /** @type {TopicsDomainSelection} */ (null);
   domainsEditor = /** @type {DomainsEditor} */ (null);
 
   /**
@@ -32,7 +34,8 @@ export class EditorMenu {
   constructor(editor) {
     this.div = document.getElementById("editor-core");
     this.editor = editor;
-    this.topicsEntry = new TopicsEntry(editor);
+    this.taggingCourseSelection = new TaggingCourseSelection(editor);
+    this.topicsDomainSelection = new TopicsDomainSelection(editor);
     this.domainsEditor = new DomainsEditor(editor);
   }
 
@@ -50,11 +53,11 @@ export class EditorMenu {
     });
     createP(this.div, "Options for question editors:");
     createButton(this.div, "Question Tagging", () => {
-      // TODO
+      this.taggingCourseSelection.show();
     });
     createP(this.div, "Options for authorized users:");
     createButton(this.div, "Manage Topic Trees", () => {
-      this.topicsEntry.show();
+      this.topicsDomainSelection.show();
     });
 
     createP(this.div, "Options for admins:");

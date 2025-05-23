@@ -4,20 +4,14 @@
  * licensed under GPLv3
  */
 
-import {
-  createBr,
-  createButton,
-  createH2,
-  createInfo,
-  createP,
-} from "../api/dom.js";
+import { createButton, createH2, createInfo, createP } from "../api/dom.js";
 import { IO } from "../api/io.js";
 import { SCRIPTS_URL } from "../config.js";
 import { TopicsEditor } from "./topics-2.js";
 
 /** @import { Editor } from "./index.js"; */
 
-export class TopicsEntry {
+export class TopicsDomainSelection {
   editor = /** @type {Editor} */ (null);
   div = /** @type {HTMLElement} */ (null);
   info = /** @type {HTMLElement} */ (null);

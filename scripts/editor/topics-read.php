@@ -25,7 +25,7 @@ Math : 0
 session_start();
 require_once '../api/init.php';
 require_once '../api/db.php';
-include "../../user/config.php";
+require_once "../../user/config.php";
 
 // TODO: check if user is allowed to do that!
 
@@ -35,12 +35,12 @@ $db = new Database($db_libreq);
 $domain = trim($_GET['domain'] ?? ""); // TODO: return error, if not given
 
 // Get topics for the domain
-$sql = "SELECT * FROM topic WHERE id0 = ? ORDER BY position ASC;";
+$sql = "SELECT * FROM topic WHERE id0 = ? ORDER BY position ASC";
 $rows = $db->query($sql, "i", [$domain]);
 
 // Build output string
 $topics = '';
-foreach($rows as $row) {
+foreach ($rows as $row) {
   $topics = $topics . str_repeat(' ', 2 * $row['depth']);
   $topics = $topics . $row['name'] . " : " . $row['code'] . "\n";
 }

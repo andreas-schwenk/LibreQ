@@ -6,31 +6,12 @@
  * licensed under GPLv3
  */
 
-// Start Session
+// This file logs in a Moodle user into the LibreQ editor
+
 session_start();
-
-// Preferences
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json");
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// Include database configuration
-include "../../user/config.php";
-
-// Connect to MariaDB
-// TODO: in all my projects use try..catch when creating the connection
-try {
-  $conn = new mysqli($db_moodle_host, $db_moodle_user, $db_moodle_password, $db_moodle_database);
-} catch (mysqli_sql_exception $e) {
-  echo json_encode([
-    'ok' => false,
-    'msg' => 'Error: Connection to Moodle database failed!'
-  ]);
-  exit();
-}
+require_once '../api/init.php';
+require_once '../api/db.php';
+require_once "../../user/config.php";
 
 // Read raw body content
 $raw = file_get_contents('php://input');
@@ -40,45 +21,27 @@ $data = json_decode($raw, true);
 $user = $data['user'] ?? "";
 $password = $data['password'] ?? "";
 
-if (strlen($user) == 0 || strlen($password) == 0) {
-  echo json_encode([
-    'ok' => false,
-    'msg' => 'Bitte alle Felder ausfüllen!' // TODO: handle languages everywhere in PHP scripts!!
-  ]);
-  exit();
-}
+// Check if user and password are set
+// TODO: handle languages everywhere in PHP scripts!!
+if (strlen($user) == 0 || strlen($password) == 0)
+  exit_failure("Bitte alle Felder ausfüllen ");
 
-// Get stored passwordHash
+// Get user password hash
+$db = new Database($db_moodle);
 $sql = "SELECT id, username, password FROM mdl_user WHERE username = ?;";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $user);
-$stmt->execute();
-$result = $stmt->get_result();
-$stmt->close();
+$rows = $db->query($sql, "s", [$user]);
 
-// Check if the user exists, i.e. a row is returned
-if ($row = $result->fetch_assoc()) {
-  // Check the password
-  $storedHash = $row["password"];
-  if (password_verify($password, $storedHash)) {
-    $_SESSION['user'] = $user;
-    echo json_encode([
-      'ok' => true,
-      'msg' => 'OK',
-      'user' => $user
-    ]);
-  } else {
-    echo json_encode([
-      'ok' => false,
-      'msg' => 'Ungültiges Passwort'
-    ]);
-  }
-} else {
-  echo json_encode([
-    'ok' => false,
-    'msg' => 'Unbekannter User ' . $user . ''
-  ]);
-}
+// User available?
+if (count($rows) == 0)
+  exit_failure('Unbekannter User ' . $user);
+$row = $rows[0];
 
-// Close connection
-$conn->close();
+// Check the password
+$storedHash = $row["password"];
+if (password_verify($password, $storedHash) == false)
+  exit_failure('Ungültiges Passwort');
+// Login successful
+$_SESSION['user'] = $user;
+exit_success('Login successful', json_encode([
+  'user' => $user
+]));

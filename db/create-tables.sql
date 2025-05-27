@@ -20,8 +20,28 @@ CREATE TABLE moodle_hierarchy (
   id BIGINT PRIMARY KEY,
   depth INT,                             -- 0=course, 1=bank, 2..=category
   name VARCHAR(256),
+  question_cnt INT,
   course_id BIGINT
 );
+
+CREATE TABLE moodle_question (
+  id BIGINT PRIMARY KEY,   -- mdl_question_bank_entries.id
+  version INT,
+  questionid BIGINT,       -- mdl_question_id (latest version only)
+  name VARCHAR(512),
+  qtype VARCHAR(30),
+  timecreated BIGINT,
+  timemodified BIGINT,
+  h0 BIGINT DEFAULT -1,       -- hierarchy depth 0 (course)
+  h1 BIGINT DEFAULT -1,       -- hierarchy depth 1 (root category)
+  h2 BIGINT DEFAULT -1,       -- ...
+  h3 BIGINT DEFAULT -1,
+  h4 BIGINT DEFAULT -1,
+  h5 BIGINT DEFAULT -1,
+  h6 BIGINT DEFAULT -1,
+  h7 BIGINT DEFAULT -1
+);
+
 
 
 

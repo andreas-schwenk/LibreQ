@@ -6,23 +6,23 @@
 
 // TODO: translate everything of LibreQ
 
-let language = "EN";
+let language = "en";
 
 const langDB = {
-  "nav.home.EN": "Home",
-  "nav.home.DE": "Home",
-  "nav.questions.EN": "Questions",
-  "nav.questions.DE": "Fragen",
-  "nav.editor.EN": "Editor",
-  "nav.editor.DE": "Editor",
-  "nav.moodle.EN": "Moodle",
-  "nav.moodle.DE": "Moodle",
-  "nav.help.EN": "Help",
-  "nav.help.DE": "Hilfe",
-  "nav.legal.EN": "Legal",
-  "nav.legal.DE": "Rechtliches",
-  "save.EN": "Save",
-  "save.DE": "Speichern",
+  "nav.home.en": "Home",
+  "nav.home.de": "Home",
+  "nav.questions.en": "Questions",
+  "nav.questions.de": "Fragen",
+  "nav.editor.en": "Editor",
+  "nav.editor.de": "Editor",
+  "nav.moodle.en": "Moodle",
+  "nav.moodle.de": "Moodle",
+  "nav.help.en": "Help",
+  "nav.help.de": "Hilfe",
+  "nav.legal.en": "Legal",
+  "nav.legal.de": "Rechtliches",
+  "save.en": "Save",
+  "save.de": "Speichern",
 };
 
 /**

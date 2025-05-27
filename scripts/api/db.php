@@ -79,3 +79,12 @@ class Database
     }
   }
 }
+
+function index_by_column(array $rows, string $column_id)
+{
+  $result = [];
+  foreach ($rows as $row) {
+    $result[$row[$column_id]] = $row;
+  }
+  return $result;
+}

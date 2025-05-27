@@ -11,7 +11,7 @@
 session_start();
 require_once '../api/init.php';
 require_once '../api/db.php';
-include "../../user/config.php";
+require_once "../../user/config.php";
 
 $db = new Database($db_libreq);
 $rows = $db->query("SELECT * FROM domain ORDER BY position ASC", "", []);

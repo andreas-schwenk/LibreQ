@@ -8,6 +8,15 @@
 
 // ----- General preferences -----
 
+// The langauge; supported: "en" and "de" (German)
+$language = "en";
+// The HTML <title> name
+$title = "LibreQ";
+// The Websites URL
+$url = "https://github.com/andreas-schwenk/LibreQ";
+
+// ----- Moodle preferences -----
+
 // The following moodle user is e.g. allowed to create root topics (domains)
 $admin_moodle_user_id = "admin"; // TODO: implement!
 
@@ -26,17 +35,3 @@ $db_libreq = [
   'password' => 'libreq',
   'database' => 'libreq'
 ];
-
-// --- TODO: remove the following!!
-
-// Moodle
-$db_moodle_host = "127.0.0.1";
-$db_moodle_user = "moodle";
-$db_moodle_password = "moodle";
-$db_moodle_database = "moodle";
-
-// LibreQ
-$db_libreq_host = "127.0.0.1";
-$db_libreq_user = "libreq";
-$db_libreq_password = "libreq";
-$db_libreq_database = "libreq";

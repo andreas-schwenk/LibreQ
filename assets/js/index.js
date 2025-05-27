@@ -9,7 +9,7 @@ import { setLanguage } from "./lang.js";
 import { createNavItems } from "./nav.js";
 import { QuestionPool } from "./questions/questions.js";
 
-let config = {};
+export let config = {};
 
 document.addEventListener("DOMContentLoaded", function () {
   fetch("user/config.json?v=" + Date.now())

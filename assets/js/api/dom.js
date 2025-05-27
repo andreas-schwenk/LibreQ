@@ -42,6 +42,16 @@ export function createDiv(parent, ...classes) {
 
 /**
  * @param {HTMLElement} parent
+ * @returns {HTMLElement}
+ */
+export function createHr(parent) {
+  let div = document.createElement("hr");
+  parent.appendChild(div);
+  return div;
+}
+
+/**
+ * @param {HTMLElement} parent
  * @param {string} text
  * @returns {HTMLElement}
  */

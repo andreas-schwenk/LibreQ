@@ -6,16 +6,19 @@
  * licensed under GPLv3
  */
 
-// TODO: select only courses the current user has access to
+// This file reads the entire "topic" table
 
 session_start();
 require_once '../api/init.php';
 require_once '../api/db.php';
 require_once "../../user/config.php";
 
+// Get topics for the domain
 $db = new Database($db_libreq);
-$sql = "SELECT * FROM moodle_hierarchy ORDER BY id ASC";
+$sql = "SELECT * FROM topic ORDER BY position ASC";
 $rows = $db->query($sql, "", []);
-exit_success('Loaded moodle hierarchy', json_encode([
+
+// Return output
+exit_success('Loaded topics table', json_encode([
   'rows' => $rows
 ]));

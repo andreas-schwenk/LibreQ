@@ -1,9 +1,9 @@
 {
-  "language": "EN",
-  "filter": [
+  "language": "en",
+  "filters": [
     {
       "name": "Bloom",
-      "table-idx": 0,
+      "code": 0,
       "values": [
         "Remember",
         "Understand",
@@ -14,13 +14,13 @@
       ]
     },
     {
-      "name": "Maier -- Type of Knowledge",
-      "table-idx": 1,
+      "name": "Maier: Type of Knowledge",
+      "code": 1,
       "values": ["Facts", "Procedures", "Concepts", "Metacognition"]
     },
     {
-      "name": "Maier -- Cognitive Process",
-      "table-idx": 2,
+      "name": "Maier: Cognitive Process",
+      "code": 2,
       "values": [
         "Reproduction",
         "Near Transfer",
@@ -33,6 +33,10 @@
     {
       "name": "Checked Format",
       "table-idx": 0
+    },
+    {
+      "name": "Checked Spelling",
+      "table-idx": 1
     }
   ]
 }

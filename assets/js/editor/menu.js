@@ -15,7 +15,7 @@ import {
 import { DomainsEditor } from "./domains.js";
 import { IO } from "../api/io.js";
 import { TopicsDomainSelection } from "./topics-1.js";
-import { TaggingMoodleCourseSelection as TaggingCourseSelection } from "./tagging.js";
+import { TaggingEditor as TaggingCourseSelection } from "./tagging.js";
 
 /** @import { Editor } from "./index.js"; */
 

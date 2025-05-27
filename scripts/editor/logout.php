@@ -7,7 +7,7 @@
  */
 
 session_start();
-require_once 'api/init.php';
+require_once '../api/init.php';
 
 session_destroy();
 exit_success("logged out");

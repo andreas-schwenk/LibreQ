@@ -11,7 +11,9 @@
 session_start();
 require_once '../api/init.php';
 require_once '../api/db.php';
-include "../../user/config.php";
+require_once "../../user/config.php";
+
+// TODO: this is old!!
 
 $db = new Database($db_moodle);
 $course_id = trim($_GET['course_id'] ?? ""); // TODO: return error, if not given

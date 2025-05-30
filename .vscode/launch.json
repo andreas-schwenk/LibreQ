@@ -10,6 +10,13 @@
       "name": "Launch Chrome against localhost",
       "url": "http://localhost:8271",
       "webRoot": "${workspaceFolder}"
+    },
+    {
+      "name": "Puppeteer",
+      "program": "${workspaceFolder}/scripts/screenshots.js",
+      "request": "launch",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node"
     }
   ]
 }

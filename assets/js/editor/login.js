@@ -46,7 +46,7 @@ export class Login {
         if (data.ok) {
           this.userInput.save();
           this.passwordInput.save();
-          this.editor.user = data.user;
+          this.editor.user = JSON.parse(data.data).user;
           this.editor.menu.show();
         }
       });

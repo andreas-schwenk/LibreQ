@@ -1,5 +1,12 @@
 <?php
-require_once 'user/config.php';
+
+$path = "user/config.json";
+$config = json_decode(file_get_contents($path), true);
+
+$language = $config['language'];
+$title = $config['website-title'];
+$url = $config['website-url'];
+
 ?>
 
 <!DOCTYPE html>

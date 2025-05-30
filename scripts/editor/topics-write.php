@@ -11,7 +11,7 @@
 session_start();
 require_once '../api/init.php';
 require_once '../api/db.php';
-require_once "../../user/config.php";
+require_once "config.php";
 
 // TODO: check if user is allowed to do that!
 

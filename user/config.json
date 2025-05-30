@@ -1,5 +1,7 @@
 {
   "language": "en",
+  "website-title": "LibreQ",
+  "website-url": "https://github.com/andreas-schwenk/LibreQ",
   "filters": [
     {
       "name": "Bloom",

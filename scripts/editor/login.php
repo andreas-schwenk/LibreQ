@@ -11,7 +11,7 @@
 session_start();
 require_once '../api/init.php';
 require_once '../api/db.php';
-require_once "../../user/config.php";
+require_once 'config.php';
 
 // Read raw body content
 $raw = file_get_contents('php://input');

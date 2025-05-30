@@ -15,8 +15,8 @@ include "../user/config.php";
 
 // TODO: save date of last sync and show it in the frontend
 
-$db_moodle = new Database($db_moodle);
-$db_libreq = new Database($db_libreq);
+$db_moodle = new Database($db_moodle); // TODO: JSON data is overwritten!!!
+$db_libreq = new Database($db_libreq); // TODO: JSON data is overwritten!!!
 
 $sql = "SELECT id, contextlevel, instanceid, path, depth 
         FROM mdl_context ORDER BY path";

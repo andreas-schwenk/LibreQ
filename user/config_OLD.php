@@ -8,6 +8,10 @@
 
 // ----- General preferences -----
 
+// TODO: this file (and other files in the directory must be hidden with e.g. .htaccess!!!)
+
+// TODO: move this content to config.json + config.secrets.json; move comments to README.md
+
 // The langauge; supported: "en" and "de" (German)
 $language = "en";
 // The HTML <title> name
@@ -18,7 +22,7 @@ $url = "https://github.com/andreas-schwenk/LibreQ";
 // ----- Moodle preferences -----
 
 // The following moodle user is e.g. allowed to create root topics (domains)
-$admin_moodle_user_id = "admin"; // TODO: implement!
+$editor_admin_moodle_user = "admin"; // TODO: implement!
 
 // ----- Database configuration -----
 

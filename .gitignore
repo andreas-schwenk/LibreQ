@@ -2,3 +2,4 @@ node_modules/
 .DS_Store
 cache/
 __TODO_NOT_IN_GIT/
+package-lock.json

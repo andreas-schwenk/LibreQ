@@ -39,7 +39,9 @@ CREATE TABLE moodle_question (
   h4 BIGINT DEFAULT -1,
   h5 BIGINT DEFAULT -1,
   h6 BIGINT DEFAULT -1,
-  h7 BIGINT DEFAULT -1
+  h7 BIGINT DEFAULT -1,
+  img_timemodified BIGINT DEFAULT 0,
+  img_errors INT DEFAULT 0
 );
 
 
@@ -206,11 +208,14 @@ CREATE TABLE topic_write_access (
 --   SELECT question_id FROM question_topic_cache WHERE topic0=0 and topic1=1 and topic2=topic2;
 --   --> topic2=topic2 disables filtering for that column (needed to write generic statements
 --       that work for all columns)
-CREATE TABLE image (
-  id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  data LONGBLOB NOT NULL,
-  updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+
+-- TODO: images are stored in the file system!
+
+-- CREATE TABLE image (
+--   id BIGINT AUTO_INCREMENT PRIMARY KEY,
+--   data LONGBLOB NOT NULL,
+--   updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+-- );
 
 --- Queries to update table question_topic_cache
 -- DELETE FROM question_topic_cache;

@@ -22,13 +22,19 @@ export class QuestionPool {
     let errorDiv = document.createElement("div"); // TODO: CSS
 
     let params = {};
-    IO.receive(SCRIPTS_URL, "questions.php", params, errorDiv, (data) => {
-      if (data.ok) {
-        let rows = JSON.parse(data.data).rows;
-        this.fromJSON(rows);
-        this.createDOM();
+    IO.receive(
+      SCRIPTS_URL,
+      "public/questions.php",
+      params,
+      errorDiv,
+      (data) => {
+        if (data.ok) {
+          let rows = JSON.parse(data.data).rows;
+          this.fromJSON(rows);
+          this.createDOM();
+        }
       }
-    });
+    );
   }
 
   /**

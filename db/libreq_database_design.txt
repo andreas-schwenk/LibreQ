@@ -1,0 +1,324 @@
+
+
+
+
+# Bloom
+
+Wissen  %0
+Verständnis  %1
+Anwendung  %2
+Analyse  %3
+Synthese  %4
+Beurteilung  %5
+
+# Maier
+
+Wissensart
+  Fakten   %0
+  Prozuduren   %1
+  Konzepte   %2
+  Metakognition   %3
+Kognitiver Prozess
+  Rreproduktion   %4
+  naher Transfer   %5
+  weiter Transfer   %6
+  Problemlösen   %7
+Wissenseinheiten
+  eine   %8
+  bis zu 4   %9
+  mehr als 4   %10
+Offenheit
+  definiert/konvergent   %11
+  definiert/divergent   %12
+  nicht definiert/divergent   %13
+Lebensweltbezug
+  kein   %14
+  konsturiert
+  authentisch
+  real
+Sprachliche Komplexität
+  niedrig
+  mittel
+  hoch
+Repräsentationsformen
+  eine
+  Integration
+  Transformation
+
+# Tree
+
+Mathematik %0
+  Grundlagen %1
+    Mengenlehre %2
+      Vereinigung, Schnitt, Differenz %3
+      Kreuzprodukt %4
+      Potenzmenge %5
+    Zahlen
+      Natürliche Zahlen
+      Ganze Zahlen
+      Rationale Zahlen
+  Elementare Funktionen
+    Polynome
+      Nullstellen
+    Rationale Funktionen
+      Definitionsbereich
+      Nullstellen
+
+
+Table "Supertopics"
+
+id 0
+name Mathematik
+row 0
+
+
+Table "Topics"
+
+id       3
+supertopic 0
+code     3
+name     Vereinigung, Schnitt, Differenz
+level    3
+parent0  0
+parent1  1
+parent2  2
+parent3  NULL
+parent4  NULL
+parent5  NULL
+row      3           -- for the sort order 
+
+
+
+
+-----------
+
+**** get all question IDs for a given course ID
+
+SELECT q.id AS question_id,
+       q.name AS question_name,
+       q.qtype,
+       q.timecreated,
+       q.timemodified,
+       qc.name AS category_name
+FROM mdl_question_versions qv
+JOIN (
+    SELECT questionbankentryid, MAX(version) AS max_version
+    FROM mdl_question_versions
+    GROUP BY questionbankentryid
+) latest ON latest.questionbankentryid = qv.questionbankentryid AND latest.max_version = qv.version
+JOIN mdl_question q ON q.id = qv.questionid
+JOIN mdl_question_bank_entries qbe ON qbe.id = qv.questionbankentryid
+JOIN mdl_question_categories qc ON qc.id = qbe.questioncategoryid
+JOIN mdl_context ctx ON ctx.id = qc.contextid
+WHERE ctx.contextlevel = 70
+  AND ctx.instanceid = 4     -- the course ID
+ORDER BY qc.name, q.name;
+
+
+**** preview URL
+
+http://localhost:8123/question/bank/previewquestion/preview.php?id=4
+
+
+
+
+
+
+
+
+
+MariaDB [moodle]> SELECT id, category, fullname FROM mdl_course;
++----+----------+-----------------+
+| id | category | fullname        |
++----+----------+-----------------+
+|  1 |        0 | Dev Moodle 5    |
+|  2 |        1 | My Test course  |
+|  3 |        1 | A second course |
++----+----------+-----------------+
+
+MariaDB [moodle]> SELECT * FROM mdl_qbank;
++----+--------+-------------------------------------+-------------+--------------+-------+-------------+----------+
+| id | course | name                                | timecreated | timemodified | intro | introformat | type     |
++----+--------+-------------------------------------+-------------+--------------+-------+-------------+----------+
+|  1 |      1 | Dev Moodle 5 course question bank   |  1747322364 |            0 | NULL  |           0 | standard |
+|  2 |      2 | My Test course course question bank |  1747322525 |            0 | NULL  |           0 | standard |
+|  3 |      2 | Another question bank               |  1747984209 |            0 |       |           1 |          |
++----+--------+-------------------------------------+-------------+--------------+-------+-------------+----------+
+
+MariaDB [moodle]> SELECT id, name, qtype, timecreated, timemodified FROM mdl_question;
++----+------------------------------------------------------+-------------+-------------+--------------+
+| id | name                                                 | qtype       | timecreated | timemodified |
++----+------------------------------------------------------+-------------+-------------+--------------+
+|  1 | eps Umgebung                                         | multichoice |  1747322544 |   1747322544 |
+|  2 | Funktionen: Verkettung von y=x^a-4, y=1/x, y=(x-b)^b | stack       |  1747322610 |   1747322610 |
+|  3 | Funktionen: Verkettung von y=x^a-4, y=1/x, y=(x-b)^b | stack       |  1747324603 |   1747324603 |
+|  4 | True/False Test Question                             | truefalse   |  1747383552 |   1747383552 |
+|  5 | True/False Test Question                             | truefalse   |  1747384078 |   1747384078 |
+|  6 | Qtest                                                | truefalse   |  1747982638 |   1747982638 |
+|  7 | A question in another question bank                  | truefalse   |  1747984520 |   1747984520 |
++----+------------------------------------------------------+-------------+-------------+--------------+
+
+MariaDB [moodle]> SELECT * FROM mdl_question_bank_entries;
++----+--------------------+----------+---------+
+| id | questioncategoryid | idnumber | ownerid |
++----+--------------------+----------+---------+
+|  1 |                  7 | NULL     |       2 |
+|  2 |                  6 | NULL     |       2 |
+|  3 |                  2 | NULL     |       2 |
+|  4 |                  8 | NULL     |       2 |
+|  5 |                  6 | NULL     |       2 |
+|  6 |                 10 | NULL     |       2 |
++----+--------------------+----------+---------+
+
+MariaDB [moodle]> SELECT id, parent, name, contextid FROM mdl_question_categories;
++----+--------+-------------------------------------------------+-----------+
+| id | parent | name                                            | contextid |
++----+--------+-------------------------------------------------+-----------+
+|  1 |      0 | top                                             |        16 |
+|  2 |      1 | Default for my quiz                             |        16 |
+|  3 |      0 | top                                             |        17 |
+|  4 |      3 | Default for Dev Moodle 5 course question bank   |        17 |
+|  5 |      0 | top                                             |        18 |
+|  6 |      5 | Default for My Test course course question bank |        18 |
+|  7 |      5 | MyTestCategory                                  |        18 |
+|  8 |      7 | MyTestSUBCategory                               |        18 |
+|  9 |      0 | top                                             |        21 |
+| 10 |      9 | Default for Another question bank               |        21 |
+| 11 |      8 | MyTestSUB_SUB_Category                          |        18 |
+| 12 |     11 | MyTestSUB_SUB_SUB_Category                      |        18 |
++----+--------+-------------------------------------------------+-----------+
+
+MariaDB [moodle]> SELECT * FROM mdl_context;
++----+--------------+------------+------------+-------+--------+
+| id | contextlevel | instanceid | path       | depth | locked |
++----+--------------+------------+------------+-------+--------+
+|  1 |           10 |          0 | /1         |     1 |      0 |     # 10 := system
+|  2 |           50 |          1 | /1/2       |     2 |      0 |     # 50 := course
+|  3 |           40 |          1 | /1/3       |     2 |      0 |     # 40 := course categories
+|  4 |           30 |          1 | /1/4       |     2 |      0 |     # 30 := user
+|  5 |           30 |          2 | /1/5       |     2 |      0 |     # 30 := user
+|  6 |           80 |          1 | /1/6       |     2 |      0 |     # 80 := block
+|  7 |           80 |          2 | /1/7       |     2 |      0 |     # 80 := block
+|  8 |           80 |          3 | /1/8       |     2 |      0 |     # 80 := block
+|  9 |           80 |          4 | /1/9       |     2 |      0 |     # 80 := block
+| 10 |           80 |          5 | /1/10      |     2 |      0 |     # 80 := block
+| 11 |           80 |          6 | /1/5/11    |     3 |      0 |     # 80 := block
+| 12 |           80 |          7 | /1/5/12    |     3 |      0 |     # 80 := block
+| 13 |           80 |          8 | /1/5/13    |     3 |      0 |     # 80 := block
+| 14 |           50 |          2 | /1/3/14    |     3 |      0 |     # 50 := course
+| 15 |           70 |          1 | /1/3/14/15 |     4 |      0 |     # 70 := module
+| 16 |           70 |          2 | /1/3/14/16 |     4 |      0 |     # 70 := module
+| 17 |           70 |          3 | /1/2/17    |     3 |      0 |     # 70 := module
+| 18 |           70 |          4 | /1/3/14/18 |     4 |      0 |     # 70 := module
+| 19 |           50 |          3 | /1/3/19    |     3 |      0 |     # 50 := course
+| 20 |           70 |          5 | /1/3/19/20 |     4 |      0 |     # 70 := module
+| 21 |           70 |          6 | /1/3/14/21 |     4 |      0 |     # 70 := module
++----+--------------+------------+------------+-------+--------+
+
+MariaDB [moodle]> SELECT * from mdl_course_categories;
++----+------------+----------+-------------+-------------------+--------+-----------+-------------+---------+------------+--------------+-------+------+-------+
+| id | name       | idnumber | description | descriptionformat | parent | sortorder | coursecount | visible | visibleold | timemodified | depth | path | theme |
++----+------------+----------+-------------+-------------------+--------+-----------+-------------+---------+------------+--------------+-------+------+-------+
+|  1 | Category 1 | NULL     | NULL        |                 1 |      0 |     10000 |           2 |       1 |          1 |   1747319224 |     1 | /1   | NULL  |
++----+------------+----------+-------------+-------------------+--------+-----------+-------------+---------+------------+--------------+-------+------+-------+
+
+MariaDB [moodle]> SELECT * FROM mdl_question_datasets;
+Empty set (0.004 sec)
+
+
+MariaDB [moodle]> select * from mdl_question_versions;
++----+---------------------+---------+------------+--------+
+| id | questionbankentryid | version | questionid | status |
++----+---------------------+---------+------------+--------+
+|  1 |                   1 |       1 |          1 | ready  |  # NEWEST VERSION OF QUESTION
+|  2 |                   2 |       1 |          2 | ready  |  # NEWEST VERSION OF QUESTION
+|  3 |                   3 |       1 |          3 | ready  |  # NEWEST VERSION OF QUESTION
+|  4 |                   4 |       1 |          4 | ready  |
+|  5 |                   4 |       2 |          5 | ready  |  # NEWEST VERSION OF QUESTION
+|  6 |                   5 |       1 |          6 | ready  |  # NEWEST VERSION OF QUESTION
+|  7 |                   6 |       1 |          7 | ready  |  # NEWEST VERSION OF QUESTION
++----+---------------------+---------+------------+--------+
+
+MariaDB [moodle]> select * from mdl_modules;
++----+-----------------+------+----------+--------+---------+
+| id | name            | cron | lastcron | search | visible |
++----+-----------------+------+----------+--------+---------+
+|  1 | assign          |    0 |        0 |        |       1 |
+|  2 | bigbluebuttonbn |    0 |        0 |        |       0 |
+|  3 | book            |    0 |        0 |        |       1 |
+|  4 | choice          |    0 |        0 |        |       1 |
+|  5 | data            |    0 |        0 |        |       1 |
+|  6 | feedback        |    0 |        0 |        |       1 |
+|  7 | folder          |    0 |        0 |        |       1 |
+|  8 | forum           |    0 |        0 |        |       1 |
+|  9 | glossary        |    0 |        0 |        |       1 |
+| 10 | h5pactivity     |    0 |        0 |        |       1 |
+| 11 | imscp           |    0 |        0 |        |       1 |
+| 12 | label           |    0 |        0 |        |       1 |
+| 13 | lesson          |    0 |        0 |        |       1 |
+| 14 | lti             |    0 |        0 |        |       1 |
+| 15 | page            |    0 |        0 |        |       1 |
+| 16 | qbank           |    0 |        0 |        |       1 |
+| 17 | quiz            |    0 |        0 |        |       1 |
+| 18 | resource        |    0 |        0 |        |       1 |
+| 19 | scorm           |    0 |        0 |        |       1 |
+| 20 | subsection      |    0 |        0 |        |       1 |
+| 21 | url             |    0 |        0 |        |       1 |
+| 22 | wiki            |    0 |        0 |        |       1 |
+| 23 | workshop        |    0 |        0 |        |       1 |
++----+-----------------+------+----------+--------+---------+
+
+MariaDB [moodle]> select id, course, module, instance from mdl_course_modules;
++----+--------+--------+----------+
+| id | course | module | instance |
++----+--------+--------+----------+
+|  1 |      2 |      8 |        1 |  #  8 := forum
+|  2 |      2 |     17 |        1 |  # 17 := quiz (refer to mdl_modules)
+|  3 |      1 |     16 |        1 |  # 16 := qbank
+|  4 |      2 |     16 |        2 |  # 16 := qbank
+|  5 |      3 |      8 |        2 |  #  8 := forum
+|  6 |      2 |     16 |        3 |  # 16 := qbank
++----+--------+--------+----------+
+
+mdl_question_bank_entries.id is relevant to get distinct questions!!!
+Use that index for LibreQ, since mdl_question.id is bound to a certain version!!!
+
+
+
+
+COURSE:   My Test course
+QBANK:      My Test course question bank
+CATEGORY:     top
+CATEGORY:       Default for ...
+CATEGORY:       MyTestCategory
+CATEGORY:         MyTestSUBCategory
+CATEGORY:           MyTestSUB_SUB_Category
+CATEGORY:           MyTestSUB_SUB_SUB_Category
+QBANK:        Another question bank
+COURSE:   A second course
+
+CREATE TABLE moodle_hierarchy (
+  id BIGINT PRIMARY KEY,
+  depth INT,                             -- 0=course, 1=bank, 2..=category
+  name VARCHAR(256),
+  course_id BIGINT
+);
+
+CREATE TABLE moodle_question (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  h0 BIGINT DEFAULT -1,       -- hierarchy depth 0
+  h1 BIGINT DEFAULT -1,       -- hierarchy depth 1
+  h2 BIGINT DEFAULT -1,       -- ...
+  h3 BIGINT DEFAULT -1,
+  h4 BIGINT DEFAULT -1,
+  h5 BIGINT DEFAULT -1,
+  ...
+  mdl_question_bank_entries__id BIGINT,
+  mdl_question__id__latest BIGINT,
+  mdl_question__name VARCHAR(512),
+  mdl_question__qtype VARCHAR(30),
+  mdl_question__timecreated BIGINT,
+  mdl_question__timemodified BIGINT
+);
+
+

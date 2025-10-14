@@ -9,9 +9,11 @@
 // TODO: make sure that not everyone can start this script!!
 
 session_start();
-require_once 'api/init.php';
-require_once 'api/db.php';
-include "../user/config.php";
+require_once '../api/init.php';
+require_once '../api/db.php';
+include "../config.php";
+
+$verbose = false;
 
 // TODO: save date of last sync and show it in the frontend
 
@@ -102,9 +104,11 @@ foreach ($mdl_modules_rows as $row) {
   }
 }
 
-print("QBANK_MODULE_ID\n");
-print_r($qbank_module_id);
-print("\n\n");
+if ($verbose) {
+  print("QBANK_MODULE_ID\n");
+  print_r($qbank_module_id);
+  print("\n\n");
+}
 
 $courses = [];
 foreach ($mdl_context_rows as $ctx_row) {
@@ -140,9 +144,11 @@ foreach ($mdl_context_rows as $ctx_row) {
   }
 }
 
-print("COURSES\n");
-print_r($courses);
-print("\n\n");
+if ($verbose) {
+  print("COURSES\n");
+  print_r($courses);
+  print("\n\n");
+}
 
 $question_categories = [];
 foreach ($mdl_question_categories_rows as $row) {
@@ -167,12 +173,10 @@ foreach ($root_categories as $rc) {
   $root_categories_by_contextid[$rc->contextid] = $rc;
 }
 
-print("ROOT CATEGORIES\n");
-print_r($root_categories_by_contextid);
-
-#print("TEST\n");
-#print_r(array_key_exists('16', $root_categories_by_contextid));
-#exit();
+if ($verbose) {
+  print("ROOT CATEGORIES\n");
+  print_r($root_categories_by_contextid);
+}
 
 $hierarchy_id_ctr = 0;
 $hierarchy = [];
@@ -212,9 +216,11 @@ foreach ($courses as $course) {
   }
 }
 
-print("HIERARCHY\n");
-print_r($hierarchy);
-print("\n\n");
+if ($verbose) {
+  print("HIERARCHY\n");
+  print_r($hierarchy);
+  print("\n\n");
+}
 
 $questions = []; // key := questionbankentryid
 
@@ -259,10 +265,10 @@ foreach ($questions as $question) {
   $question->modified = $mdl_question['timemodified'];
 }
 
-
-print("QUESTIONS\n");
-print_r($questions);
-
+if ($verbose) {
+  print("QUESTIONS\n");
+  print_r($questions);
+}
 
 // write results into database
 // (a) hierarchy
@@ -283,9 +289,10 @@ foreach ($hierarchy as $he) {
 $db_libreq->query_sequence($sql, "iisii", $params_list);
 
 // (b) questions
+// TODO: the following to queries must be done atomically
 $sql = "DELETE FROM moodle_question";
 $db_libreq->query($sql, "", []);
-$sql = "INSERT INTO moodle_question (id, questionid, name, qtype, 
+$sql = "INSERT INTO moodle_question (id, version, questionid, name, qtype, 
           timecreated, timemodified, h0, h1, h2, h3, h4, h5, h6, h7)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 $params_list = [];
@@ -311,8 +318,9 @@ foreach ($questions as $question) {
 }
 $db_libreq->query_sequence($sql, "iiissiiiiiiiiii", $params_list);
 
-//print("QUESTIONS___prepared\n");
-//print_r($params_list);
-
+if ($verbose) {
+  print("QUESTIONS___prepared\n");
+  print_r($params_list);
+}
 
 exit_success("cron ended successfully");

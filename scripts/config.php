@@ -6,8 +6,10 @@
  * licensed under GPLv3
  */
 
+$cwd = getcwd();
+
 // Read config file and set global variables
-$path = "../../user/config.secrets.json";
+$path = __DIR__ .  "/../user/config.secrets.json";
 $config_secrets = json_decode(file_get_contents($path), true);
 
 $db_moodle = $config_secrets['db_moodle'];

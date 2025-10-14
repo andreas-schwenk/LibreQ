@@ -1,14 +1,11 @@
 Here is your formatted and readable Markdown guide based on the raw description:
 
-
-
 # 📘 Moodle 5 Installation on macOS (for LibreQ)
 
 > This guide sets up Moodle 5 locally for development and testing using PHP’s built-in server.
-> **No Apache or Nginx required.**
-> **Not recommended for production!** Use a Linux setup for that.
+> **No Apache or Nginx required.** > **Not recommended for production!** Use a Linux setup for that.
 
-
+> We assume using Moodle 5.1 or newer!
 
 ## 📦 Prerequisites
 
@@ -20,31 +17,26 @@ Follow the instructions at [https://brew.sh](https://brew.sh)
 
 You can change these paths, but be consistent throughout the guide:
 
-* LibreQ base directory: `~/LibreQ/`
-* Moodle source: `~/LibreQ/moodle`
-* Moodle data dir: `~/LibreQ/moodledata`
+- LibreQ base directory: `~/LibreQ/`
+- Moodle source: `~/LibreQ/moodle`
+- Moodle data dir: `~/LibreQ/moodledata`
 
 ```bash
 mkdir -p ~/LibreQ/moodle
 mkdir -p ~/LibreQ/moodledata
 ```
 
-
-
 ## 🔧 Install Dependencies
 
 ```bash
-brew install mariadb php git maxima libyaml gnuplot
+brew install wget mariadb php git maxima libyaml gnuplot composer php-intl
 ```
-
 
 ### (Optional) Install `yaml` PECL extension for better YAML performance
 
 ```bash
 echo $(brew --prefix libyaml) | pecl install yaml
 ```
-
-
 
 ## ⚙️ Configure PHP
 
@@ -65,8 +57,6 @@ Uncomment and set the following:
 ```ini
 max_input_vars = 10000
 ```
-
-
 
 ## 🛢 Setup the Database
 
@@ -97,15 +87,13 @@ Test login:
 mariadb -h 127.0.0.1 -u moodle -p
 ```
 
-
-
 ## ⬇️ Get Moodle Source Code
 
 ```bash
 cd ~/LibreQ/
 git clone git://git.moodle.org/moodle.git
 cd moodle
-git branches -a
+git branch -a
 ```
 
 All available branches are listed. Check out the branch that matches your desired Moodle version.
@@ -151,20 +139,23 @@ $CFG->directorypermissions = 0777;
 require_once(__DIR__ . '/lib/setup.php');
 ```
 
+Run composer:
 
+```bash
+cd ~/LibreQ/moodle
+composer install --no-dev --classmap-authoritative
+```
 
 ## 🌐 Start Development Server
 
 ```bash
 cd ~/LibreQ/moodle
-php -S 127.0.0.1:8123
+php -S 127.0.0.1:8123 -t public
 ```
 
 Open [http://127.0.0.1:8123](http://127.0.0.1:8123) in your browser and complete the setup via GUI.
 
 Use e.g. `dev@localhost.localdomain` for support email fields.
-
-
 
 ## 🔁 Run Moodle Cron Job
 
@@ -187,20 +178,16 @@ Add this line (replace `USER` with your macOS username):
 
 > ⚠️ **Note:** Running the cron job every minute consumes system resources. Be sure to disable it when it's no longer needed.
 
-
-
 ## ➕ Install STACK Plugin
 
 Install required plugins:
 
 ```bash
-git clone https://github.com/maths/moodle-qbehaviour_dfexplicitvaildate.git ~/LibreQ/moodle/question/behaviour/dfexplicitvaildate
-git clone https://github.com/maths/moodle-qbehaviour_dfcbmexplicitvaildate.git ~/LibreQ/moodle/question/behaviour/dfcbmexplicitvaildate
-git clone https://github.com/maths/moodle-qbehaviour_adaptivemultipart.git ~/LibreQ/moodle/question/behaviour/adaptivemultipart
-git clone https://github.com/maths/moodle-qtype_stack.git ~/LibreQ/moodle/question/type/stack
+git clone https://github.com/maths/moodle-qbehaviour_dfexplicitvaildate.git ~/LibreQ/moodle/public/question/behaviour/dfexplicitvaildate
+git clone https://github.com/maths/moodle-qbehaviour_dfcbmexplicitvaildate.git ~/LibreQ/moodle/public/question/behaviour/dfcbmexplicitvaildate
+git clone https://github.com/maths/moodle-qbehaviour_adaptivemultipart.git ~/LibreQ/moodle/public/question/behaviour/adaptivemultipart
+git clone https://github.com/maths/moodle-qtype_stack.git ~/LibreQ/moodle/public/question/type/stack
 ```
-
-
 
 ## ⚙️ Configure STACK Plugin
 
@@ -214,17 +201,34 @@ which gnuplot    # e.g. /opt/homebrew/bin/gnuplot
 
 In Moodle GUI:
 
-* Go to: **Site administration → Plugins → Question types → STACK**
-* Set the version and use the paths from commands above. For example:
+- Go to: **Site administration → Plugins → Question types → STACK**
+- Set the version and use the paths from commands above. For example:
 
   ```
   Maxima command:  /opt/homebrew/bin/maxima --very-quiet
   Plot command:    /opt/homebrew/bin/gnuplot
   ```
 
-* Go to the same site again and choose **healthcheck script** and then **Create Maxima image**.
+- Go to the same site again and choose **healthcheck script** and then **Create Maxima image**.
 
+Troubleshooting:
 
+- If Homebrew installed a version newer than the one supported by STACK, you’ll need to compile and install Maxima from source. Download the required version from SourceForge (adjust the version number as needed):
+
+  ```bash
+  brew install sbcl texinfo
+  wget https://sourceforge.net/projects/maxima/files/Maxima-source/5.47.0-source/maxima-5.47.0.tar.gz
+  tar -xzf maxima-5.47.0.tar.gz
+  cd maxima-5.47.0
+  PREFIX="/opt/maxima-5.47.0"
+  ./configure --prefix="$PREFIX" --with-sbcl="$(brew --prefix sbcl)/bin/sbcl" --enable-readline
+  make
+  sudo make install
+  ```
+
+  ```bash
+  Maxima command:  /opt/maxima-5.47.0/bin/maxima --very-quiet
+  ```
 
 ## ✅ Done
 

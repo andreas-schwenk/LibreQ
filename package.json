@@ -16,6 +16,7 @@
     "html-minifier-terser": "^7.2.0"
   },
   "dependencies": {
+    "mariadb": "^3.4.2",
     "puppeteer": "^24.9.0"
   }
 }

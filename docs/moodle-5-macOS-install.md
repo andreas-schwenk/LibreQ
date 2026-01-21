@@ -1,5 +1,3 @@
-Here is your formatted and readable Markdown guide based on the raw description:
-
 # 📘 Moodle 5 Installation on macOS (for LibreQ)
 
 > This guide sets up Moodle 5 locally for development and testing using PHP’s built-in server.
